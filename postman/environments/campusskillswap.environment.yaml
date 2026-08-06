@@ -1,2 +1,4 @@
 name: campusskillswap
-values: []
+values:
+  - key: base_url
+    value: ''
