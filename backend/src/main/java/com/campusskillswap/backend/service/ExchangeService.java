@@ -12,6 +12,7 @@ import com.campusskillswap.backend.repository.SkillRepository;
 import com.campusskillswap.backend.repository.UserRepository;
 import com.campusskillswap.backend.request.ExchangeRequest;
 
+
 @Service
 public class ExchangeService {
 
@@ -61,5 +62,45 @@ public class ExchangeService {
                 .orElseThrow();
 
         return exchangeRepository.findByReceiver(receiver);
+    }
+
+    public Exchange acceptRequest(Long exchangeId, String email) {
+
+        User receiver = userRepository
+                .findByEmail(email)
+                .orElseThrow();
+
+        Exchange exchange = exchangeRepository
+                .findById(exchangeId)
+                .orElseThrow();
+
+        if (!exchange.getReceiver().getId().equals(receiver.getId())) {
+            throw new RuntimeException(
+                    "You are not allowed to accept this request");
+        }
+
+        exchange.setStatus("ACCEPTED");
+
+        return exchangeRepository.save(exchange);
+    }
+
+    public Exchange rejectRequest(Long exchangeId, String email) {
+
+        User receiver = userRepository
+                .findByEmail(email)
+                .orElseThrow();
+
+        Exchange exchange = exchangeRepository
+                .findById(exchangeId)
+                .orElseThrow();
+
+        if (!exchange.getReceiver().getId().equals(receiver.getId())) {
+            throw new RuntimeException(
+                    "You are not allowed to reject this request");
+        }
+
+        exchange.setStatus("REJECTED");
+
+        return exchangeRepository.save(exchange);
     }
 }
