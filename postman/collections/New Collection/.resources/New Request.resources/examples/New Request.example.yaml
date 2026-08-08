@@ -1,0 +1,33 @@
+$kind: http-example
+request:
+  url: http://localhost:8080/api/users/profile
+  method: GET
+  body:
+    type: json
+    content: ""
+response:
+  statusCode: 200
+  statusText: ""
+  headers:
+    x-content-type-options: nosniff
+    x-xss-protection: "0"
+    cache-control: no-cache, no-store, max-age=0, must-revalidate
+    pragma: no-cache
+    expires: "0"
+    x-frame-options: DENY
+    content-type: application/json
+    content-length: "143"
+    date: Fri, 07 Aug 2026 07:48:24 GMT
+    keep-alive: timeout=60
+    connection: keep-alive
+  body:
+    type: json
+    content: |-
+      {
+        "email": "rakhi@test.com",
+        "id": 6,
+        "password": "$2a$10$xP9qlRC1RxMOmd0syVCbVuVllDPz.TCV28hYvTKd12./.OH8AegRm",
+        "role": "STUDENT",
+        "username": "rakhi"
+      }
+order: 1786088908555
