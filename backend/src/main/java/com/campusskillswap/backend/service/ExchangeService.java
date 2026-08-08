@@ -54,7 +54,12 @@ public class ExchangeService {
         return exchangeRepository.save(exchange);
     }
 
-    public List<Exchange> getRequests() {
-        return exchangeRepository.findAll();
+    public List<Exchange> getRequests(String email) {
+
+        User receiver = userRepository
+                .findByEmail(email)
+                .orElseThrow();
+
+        return exchangeRepository.findByReceiver(receiver);
     }
 }

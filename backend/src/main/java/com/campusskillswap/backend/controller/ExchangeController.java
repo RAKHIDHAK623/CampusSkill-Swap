@@ -3,6 +3,7 @@ package com.campusskillswap.backend.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,7 @@ import com.campusskillswap.backend.request.ExchangeRequest;
 import com.campusskillswap.backend.service.ExchangeService;
 
 @RestController
-@RequestMapping("/api/exchanges")
+@RequestMapping("/api/exchange")
 @CrossOrigin
 public class ExchangeController {
 
@@ -27,10 +28,10 @@ public class ExchangeController {
 
     @PostMapping
     public ResponseEntity<Exchange> sendRequest(
-            @RequestBody ExchangeRequest request) {
+            @RequestBody ExchangeRequest request,
+            Authentication authentication) {
 
-        // Temporary email for testing
-        String email = "test@gmail.com";
+        String email = authentication.getName();
 
         Exchange exchange =
                 exchangeService.sendRequest(request, email);
@@ -38,11 +39,15 @@ public class ExchangeController {
         return ResponseEntity.ok(exchange);
     }
 
+    
     @GetMapping
-    public ResponseEntity<List<Exchange>> getRequests() {
+public ResponseEntity<List<Exchange>> getRequests(
+        Authentication authentication) {
 
-        return ResponseEntity.ok(
-                exchangeService.getRequests()
-        );
-    }
+    String email = authentication.getName();
+
+    return ResponseEntity.ok(
+            exchangeService.getRequests(email)
+    );
+}
 }
