@@ -1,4 +1,4 @@
 name: campusskillswap
 values:
   - key: base_url
-    value: ''
+    value: 'http://localhost:8081'

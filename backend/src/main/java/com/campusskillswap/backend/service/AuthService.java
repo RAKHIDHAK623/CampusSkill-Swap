@@ -61,26 +61,51 @@ public class AuthService {
 
 
 
-    // LOGIN
-    public String login(LoginRequest request){
+    
+// LOGIN
+public String login(LoginRequest request) {
 
-        User user = userRepository
-                .findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                    new RuntimeException("Email not found")
-                );
+    System.out.println("=================================");
+    System.out.println("LOGIN REQUEST RECEIVED");
+    System.out.println("EMAIL: " + request.getEmail());
 
+    User user = userRepository
+            .findByEmail(request.getEmail())
+            .orElseThrow(() -> {
 
-        if(!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())){
+                System.out.println("USER NOT FOUND");
+                return new RuntimeException("Email not found");
+            });
 
-            throw new RuntimeException("Wrong password");
+    System.out.println("USER FOUND: " + user.getEmail());
 
-        }
+    boolean passwordMatch =
+            passwordEncoder.matches(
+                    request.getPassword(),
+                    user.getPassword()
+            );
 
+    System.out.println(
+            "PASSWORD MATCH: " + passwordMatch
+    );
 
-        return jwtService.generateToken(user.getEmail());
+    if (!passwordMatch) {
+
+        System.out.println("WRONG PASSWORD");
+
+        throw new RuntimeException(
+                "Wrong password"
+        );
     }
 
+    String token =
+            jwtService.generateToken(
+                    user.getEmail()
+            );
+
+    System.out.println("JWT GENERATED");
+    System.out.println("=================================");
+
+    return token;
+}
 }

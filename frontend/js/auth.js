@@ -1,9 +1,9 @@
+
 // ==========================================
 // CAMPUS SKILL SWAP API
 // ==========================================
 
 const API_BASE_URL = "http://localhost:8081/api";
-
 
 // ==========================================
 // MESSAGE HELPER
@@ -11,8 +11,7 @@ const API_BASE_URL = "http://localhost:8081/api";
 
 function showMessage(elementId, message, type) {
 
-    const element =
-        document.getElementById(elementId);
+    const element = document.getElementById(elementId);
 
     if (!element) {
         return;
@@ -29,8 +28,7 @@ function showMessage(elementId, message, type) {
 
 function togglePassword(inputId, button) {
 
-    const input =
-        document.getElementById(inputId);
+    const input = document.getElementById(inputId);
 
     if (!input) {
         return;
@@ -53,269 +51,264 @@ function togglePassword(inputId, button) {
 // LOGIN
 // ==========================================
 
-const loginForm =
-    document.getElementById("loginForm");
-
+const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
 
-    loginForm.addEventListener(
-        "submit",
-        async function (event) {
+    loginForm.addEventListener("submit", async function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            const email =
-                document
-                    .getElementById("loginEmail")
-                    .value
-                    .trim();
+        const email =
+            document.getElementById("loginEmail").value.trim();
 
-            const password =
-                document
-                    .getElementById("loginPassword")
-                    .value;
+        const password =
+            document.getElementById("loginPassword").value;
 
-            const button =
-                document.getElementById(
-                    "loginButton"
-                );
+        const button =
+            document.getElementById("loginButton");
 
+
+        // ==================================
+        // VALIDATION
+        // ==================================
+
+        if (!email || !password) {
+
+            showMessage(
+                "loginMessage",
+                "Please enter email and password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        button.disabled = true;
+        button.textContent = "Logging in...";
+
+
+        try {
 
             // ==================================
-            // VALIDATION
+            // LOGIN API
             // ==================================
 
-            if (!email || !password) {
+            const response = await fetch(
+                `${API_BASE_URL}/auth/login`,
+                {
+                    method: "POST",
 
-                showMessage(
-                    "loginMessage",
-                    "Please enter email and password.",
-                    "error"
-                );
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                return;
-            }
-
-
-            button.disabled = true;
-            button.textContent = "Logging in...";
-
-
-            try {
-
-                // ==================================
-                // LOGIN API
-                // ==================================
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/auth/login`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-                                email: email,
-                                password: password
-                            })
-                        }
-                    );
-
-
-                const responseText =
-                    await response.text();
-
-
-                console.log(
-                    "Login Status:",
-                    response.status
-                );
-
-                console.log(
-                    "Login Response:",
-                    responseText
-                );
-
-
-                // ==================================
-                // LOGIN FAILED
-                // ==================================
-
-                if (!response.ok) {
-
-                    let errorMessage =
-                        "Login failed.";
-
-                    try {
-
-                        const errorData =
-                            JSON.parse(
-                                responseText
-                            );
-
-                        errorMessage =
-                            errorData.message ||
-                            errorData.error ||
-                            errorMessage;
-
-                    } catch (error) {
-
-                        if (responseText) {
-
-                            errorMessage =
-                                responseText;
-                        }
-                    }
-
-                    throw new Error(
-                        errorMessage
-                    );
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
                 }
+            );
+            
+
+            console.log("LOGIN RESPONSE RECEIVED");
+            console.log("STATUS:", response.status);
+            
+            const responseText = await response.text();
 
 
-                // ==================================
-                // GET JWT
-                // ==================================
-
-                let token =
-                    responseText.trim();
+            console.log("Login Status:", response.status);
+            console.log("Login Response:", responseText);
 
 
-                // Backend can return JSON
+            // ==================================
+            // LOGIN FAILED
+            // ==================================
+
+            if (!response.ok) {
+
+                let errorMessage = "Login failed.";
+
                 try {
 
-                    const data =
-                        JSON.parse(
-                            responseText
-                        );
+                    const errorData = JSON.parse(responseText);
 
-
-                    if (
-                        typeof data ===
-                        "string"
-                    ) {
-
-                        token = data;
-
-                    } else if (
-                        data.token
-                    ) {
-
-                        token =
-                            data.token;
-
-                    } else if (
-                        data.accessToken
-                    ) {
-
-                        token =
-                            data.accessToken;
-                    }
+                    errorMessage =
+                        errorData.message ||
+                        errorData.error ||
+                        errorMessage;
 
                 } catch (error) {
 
-                    // Plain JWT
+                    if (responseText) {
+                        errorMessage = responseText;
+                    }
                 }
 
-
-                // Remove quotes
-                token =
-                    token.replace(
-                        /^"|"$/g,
-                        ""
-                    );
+                throw new Error(errorMessage);
+            }
 
 
-                // ==================================
-                // TOKEN CHECK
-                // ==================================
+            // ==================================
+            // GET JWT TOKEN
+            // ==================================
 
-                if (!token) {
+            let token = responseText.trim();
 
-                    throw new Error(
-                        "Login successful but JWT token was not received."
-                    );
+
+            // Backend JSON response handle
+            try {
+
+                const data = JSON.parse(responseText);
+
+
+                // Example:
+                // "eyJhbGciOiJIUzI1NiJ9..."
+
+                if (typeof data === "string") {
+
+                    token = data;
                 }
 
+                // Example:
+                // { "token": "eyJ..." }
 
-                // ==================================
-                // SAVE JWT
-                // ==================================
+                else if (data.token) {
 
-                localStorage.setItem(
-                    "token",
-                    token
-                );
+                    token = data.token;
+                }
 
-                localStorage.setItem(
-                    "userEmail",
-                    email
-                );
+                // Example:
+                // { "accessToken": "eyJ..." }
 
+                else if (data.accessToken) {
 
-                console.log(
-                    "JWT saved successfully."
-                );
+                    token = data.accessToken;
+                }
 
+                // Example:
+                // { "jwt": "eyJ..." }
 
-                // ==================================
-                // SUCCESS MESSAGE
-                // ==================================
+                else if (data.jwt) {
 
-                showMessage(
-                    "loginMessage",
-                    "Login successful! Redirecting...",
-                    "success"
-                );
-
-
-                button.textContent =
-                    "Login Successful ✓";
-
-
-                // ==================================
-                // DASHBOARD
-                // ==================================
-
-                setTimeout(
-                    function () {
-
-                        window.location.href =
-                            "dashboard.html";
-
-                    },
-                    1000
-                );
-
+                    token = data.jwt;
+                }
 
             } catch (error) {
 
-                console.error(
-                    "Login Error:",
-                    error
-                );
-
-
-                showMessage(
-                    "loginMessage",
-                    error.message ||
-                    "Unable to login. Please try again.",
-                    "error"
-                );
-
-
-                button.disabled = false;
-
-                button.textContent =
-                    "Login";
+                // Backend returned plain JWT
             }
+
+
+            // ==================================
+            // CLEAN TOKEN
+            // ==================================
+
+            token = token
+                .trim()
+                .replace(/^"|"$/g, "");
+
+
+            console.log("JWT Token:", token);
+
+
+            // ==================================
+            // TOKEN CHECK
+            // ==================================
+
+            if (!token) {
+
+                throw new Error(
+                    "Login successful but JWT token was not received."
+                );
+            }
+
+
+            // ==================================
+            // SAVE JWT
+            // ==================================
+
+            localStorage.setItem("token", token);
+
+            localStorage.setItem("userEmail", email);
+
+
+            // Verify token was actually saved
+
+            const savedToken =
+                localStorage.getItem("token");
+
+
+            console.log(
+                "Saved Token:",
+                savedToken
+            );
+
+
+            if (!savedToken) {
+
+                throw new Error(
+                    "JWT token could not be saved in localStorage."
+                );
+            }
+
+
+            console.log(
+                "JWT saved successfully."
+            );
+
+
+            // ==================================
+            // SUCCESS MESSAGE
+            // ==================================
+
+            showMessage(
+                "loginMessage",
+                "Login successful! Redirecting...",
+                "success"
+            );
+
+
+            button.textContent =
+                "Login Successful ✓";
+
+
+            // ==================================
+            // DASHBOARD
+            // ==================================
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "dashboard.html";
+
+            }, 1000);
+
+
+        } catch (error) {
+
+            console.error(
+                "Login Error:",
+                error
+            );
+
+
+            showMessage(
+                "loginMessage",
+                error.message ||
+                "Unable to login. Please try again.",
+                "error"
+            );
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "Login";
         }
-    );
+
+    });
 }
 
 
@@ -324,9 +317,7 @@ if (loginForm) {
 // ==========================================
 
 const registerForm =
-    document.getElementById(
-        "registerForm"
-    );
+    document.getElementById("registerForm");
 
 
 if (registerForm) {
@@ -340,35 +331,27 @@ if (registerForm) {
 
             const username =
                 document
-                    .getElementById(
-                        "registerUsername"
-                    )
+                    .getElementById("registerUsername")
                     .value
                     .trim();
 
 
             const email =
                 document
-                    .getElementById(
-                        "registerEmail"
-                    )
+                    .getElementById("registerEmail")
                     .value
                     .trim();
 
 
             const password =
                 document
-                    .getElementById(
-                        "registerPassword"
-                    )
+                    .getElementById("registerPassword")
                     .value;
 
 
             const confirmPassword =
                 document
-                    .getElementById(
-                        "confirmPassword"
-                    )
+                    .getElementById("confirmPassword")
                     .value;
 
 
@@ -411,10 +394,7 @@ if (registerForm) {
             }
 
 
-            if (
-                password !==
-                confirmPassword
-            ) {
+            if (password !== confirmPassword) {
 
                 showMessage(
                     "registerMessage",
@@ -438,30 +418,27 @@ if (registerForm) {
                 // REGISTER API
                 // ==================================
 
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/auth/register`,
-                        {
-                            method: "POST",
+                const response = await fetch(
+                    `${API_BASE_URL}/auth/register`,
+                    {
+                        method: "POST",
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                            body: JSON.stringify({
+                        body: JSON.stringify({
 
-                                username:
-                                    username,
+                            username: username,
 
-                                email:
-                                    email,
+                            email: email,
 
-                                password:
-                                    password
-                            })
-                        }
-                    );
+                            password: password
+
+                        })
+                    }
+                );
 
 
                 const responseText =
@@ -472,6 +449,7 @@ if (registerForm) {
                     "Register Status:",
                     response.status
                 );
+
 
                 console.log(
                     "Register Response:",
@@ -516,7 +494,7 @@ if (registerForm) {
 
 
                 // ==================================
-                // SUCCESS
+                // REGISTER SUCCESS
                 // ==================================
 
                 showMessage(
@@ -560,6 +538,8 @@ if (registerForm) {
                 button.textContent =
                     "Create Account";
             }
+
         }
     );
 }
+

@@ -17,7 +17,6 @@ import com.campusskillswap.backend.entity.Exchange;
 import com.campusskillswap.backend.request.ExchangeRequest;
 import com.campusskillswap.backend.service.ExchangeService;
 
-
 @RestController
 @RequestMapping("/api/exchange")
 @CrossOrigin
@@ -28,6 +27,10 @@ public class ExchangeController {
     public ExchangeController(ExchangeService exchangeService) {
         this.exchangeService = exchangeService;
     }
+
+    // ==============================
+    // SEND EXCHANGE REQUEST
+    // ==============================
 
     @PostMapping
     public ResponseEntity<Exchange> sendRequest(
@@ -42,37 +45,50 @@ public class ExchangeController {
         return ResponseEntity.ok(exchange);
     }
 
-    
-   @GetMapping
-public ResponseEntity<List<Exchange>> getRequests(
-        Authentication authentication) {
+    // ==============================
+    // GET MY EXCHANGE REQUESTS
+    // ==============================
 
-    String email = authentication.getName();
+    @GetMapping
+    public ResponseEntity<List<Exchange>> getRequests(
+            Authentication authentication) {
 
-    return ResponseEntity.ok(
-            exchangeService.getRequests(email)
-    );
-}
-@PutMapping("/{id}/accept")
-public ResponseEntity<Exchange> acceptRequest(
-        @PathVariable Long id,
-        Authentication authentication) {
+        String email = authentication.getName();
 
-    String email = authentication.getName();
+        return ResponseEntity.ok(
+                exchangeService.getRequests(email)
+        );
+    }
 
-    return ResponseEntity.ok(
-            exchangeService.acceptRequest(id, email)
-    );
-}
-@PutMapping("/{id}/reject")
-public ResponseEntity<Exchange> rejectRequest(
-        @PathVariable Long id,
-        Authentication authentication) {
+    // ==============================
+    // ACCEPT REQUEST
+    // ==============================
 
-    String email = authentication.getName();
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<Exchange> acceptRequest(
+            @PathVariable Long id,
+            Authentication authentication) {
 
-    return ResponseEntity.ok(
-            exchangeService.rejectRequest(id, email)
-    );
-}
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                exchangeService.acceptRequest(id, email)
+        );
+    }
+
+    // ==============================
+    // REJECT REQUEST
+    // ==============================
+
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<Exchange> rejectRequest(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                exchangeService.rejectRequest(id, email)
+        );
+    }
 }
