@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | CampusSkillSwap</title>
+
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="logo-section">
+
+            <div class="logo">
+                CS
+            </div>
+
+            <h1>CampusSkillSwap</h1>
+
+            <p>Learn. Teach. Exchange Skills.</p>
+
+        </div>
+
+
+        <div class="form-section">
+
+            <h2>Create Account 🚀</h2>
+
+            <p class="subtitle">
+                Join your campus skill community
+            </p>
+
+
+            <form id="registerForm">
+
+                <div class="input-group">
+
+                    <label for="registerUsername">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="registerUsername"
+                        placeholder="Enter your username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="input-group">
+
+                    <label for="registerEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="registerEmail"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="input-group">
+
+                    <label for="registerPassword">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="registerPassword"
+                            placeholder="Create a password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            onclick="togglePassword('registerPassword', this)"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="input-group">
+
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            placeholder="Confirm your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            onclick="togglePassword('confirmPassword', this)"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="auth-button"
+                    id="registerButton"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+
+            <div id="registerMessage" class="message"></div>
+
+
+            <p class="switch-page">
+
+                Already have an account?
+
+                <a href="login.html">
+                    Login
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="js/auth.js"></script>
+
+</body>
+</html>
