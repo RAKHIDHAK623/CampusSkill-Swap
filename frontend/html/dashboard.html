@@ -12,182 +12,689 @@
 
     <title>Dashboard | CampusSkillSwap</title>
 
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background: #f5f7fb;
-        }
-
-        nav {
-            height: 70px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #4f46e5,
-                    #7c3aed
-                );
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding: 0 30px;
-        }
-
-        nav h2 {
-            margin: 0;
-        }
-
-        .logout {
-            border: none;
-
-            background: white;
-
-            color: #4f46e5;
-
-            padding:
-                10px
-                18px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-weight: 600;
-        }
-
-        .container {
-            max-width: 1100px;
-
-            margin: 50px auto;
-
-            padding: 20px;
-        }
-
-        .welcome {
-            background: white;
-
-            padding: 30px;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 8px 30px
-                rgba(0, 0, 0, 0.08);
-        }
-
-        .welcome h1 {
-            color: #1f2937;
-        }
-
-        .welcome p {
-            color: #6b7280;
-        }
-
-    </style>
+    <link
+        rel="stylesheet"
+        href="../css/dashboard.css"
+    >
 
 </head>
 
-
 <body>
 
-<nav>
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
 
-    <h2>
-        CampusSkillSwap
-    </h2>
+    <aside class="sidebar" id="sidebar">
 
-    <button
-        class="logout"
-        onclick="logout()"
-    >
-        Logout
-    </button>
+        <div class="sidebar-logo">
 
-</nav>
+            <div class="logo">
+                CS
+            </div>
 
+            <div>
+                <h2>CampusSkillSwap</h2>
+                <span>Skill • Share • Grow</span>
+            </div>
 
-<div class="container">
-
-    <div class="welcome">
-
-        <h1>
-            Welcome to CampusSkillSwap 🎓
-        </h1>
-
-        <p id="userEmail"></p>
-
-        <p>
-            Your dashboard is ready.
-            Skills and Exchange features
-            will be connected next.
-        </p>
-
-    </div>
-
-</div>
+        </div>
 
 
-<script>
+        <nav class="sidebar-nav">
 
-    // Protect dashboard
+            <a
+                href="#"
+                class="nav-item active"
+            >
+                <span>🏠</span>
+                Dashboard
+            </a>
 
-    const token =
-        localStorage.getItem("token");
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>🔍</span>
+                Explore Skills
+            </a>
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>🔄</span>
+                Skill Exchange
+            </a>
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>👥</span>
+                Students
+            </a>
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>💬</span>
+                Messages
+            </a>
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>⭐</span>
+                My Skills
+            </a>
+
+        </nav>
 
 
-    if (!token) {
+        <div class="sidebar-bottom">
 
-        window.location.href =
-            "login.html";
-    }
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>⚙️</span>
+                Settings
+            </a>
+
+            <button
+                class="logout-btn"
+                onclick="logout()"
+            >
+                <span>🚪</span>
+                Logout
+            </button>
+
+        </div>
+
+    </aside>
 
 
-    const email =
-        localStorage.getItem(
-            "userEmail"
-        );
+    <!-- =========================================
+         MAIN AREA
+    ========================================== -->
+
+    <main class="main-content">
 
 
-    document.getElementById(
-        "userEmail"
-    ).textContent =
-        email
-        ? "Logged in as: " + email
-        : "";
+        <!-- =====================================
+             TOPBAR
+        ====================================== -->
+
+        <header class="topbar">
+
+            <button
+                class="menu-btn"
+                id="menuButton"
+            >
+                ☰
+            </button>
 
 
-    function logout() {
+            <div class="search-box">
 
-        localStorage.removeItem(
-            "token"
-        );
+                <span>🔍</span>
 
-        localStorage.removeItem(
-            "userEmail"
-        );
+                <input
+                    type="text"
+                    placeholder="Search skills, students..."
+                >
 
-        window.location.href =
-            "login.html";
-    }
+            </div>
 
-</script>
+
+            <div class="topbar-right">
+
+                <button class="notification-btn">
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+
+
+                <div class="profile-mini">
+
+                    <div class="avatar">
+                        <span id="avatarLetter">
+                            U
+                        </span>
+                    </div>
+
+                    <div class="profile-mini-info">
+
+                        <strong id="topUsername">
+                            User
+                        </strong>
+
+                        <span>
+                            Student
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================
+             CONTENT
+        ====================================== -->
+
+        <section class="dashboard-container">
+
+
+            <!-- =================================
+                 WELCOME
+            ================================== -->
+
+            <div class="welcome-section">
+
+                <div>
+
+                    <p class="welcome-label">
+                        Welcome back 👋
+                    </p>
+
+                    <h1>
+                        Hello,
+                        <span id="welcomeUsername">
+                            Student
+                        </span>
+                        !
+                    </h1>
+
+                    <p>
+                        Ready to learn something new
+                        or share your skills today?
+                    </p>
+
+                </div>
+
+
+                <div class="welcome-icon">
+                    🎓
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 STATISTICS
+            ================================== -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">
+                        📚
+                    </div>
+
+                    <div>
+
+                        <span>
+                            My Skills
+                        </span>
+
+                        <strong>
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        🔄
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Exchanges
+                        </span>
+
+                        <strong>
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Connections
+                        </span>
+
+                        <strong>
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        ⭐
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Rating
+                        </span>
+
+                        <strong>
+                            0.0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 MAIN GRID
+            ================================== -->
+
+            <div class="dashboard-grid">
+
+
+                <!-- =============================
+                     PROFILE
+                ============================== -->
+
+                <div class="card profile-card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            My Profile
+                        </h2>
+
+                        <button>
+                            Edit
+                        </button>
+
+                    </div>
+
+
+                    <div class="profile-large">
+
+                        <div class="large-avatar">
+
+                            <span id="profileLetter">
+                                U
+                            </span>
+
+                        </div>
+
+
+                        <div>
+
+                            <h3 id="profileUsername">
+                                Student
+                            </h3>
+
+                            <p id="profileEmail">
+                                Loading...
+                            </p>
+
+                            <span
+                                class="role-badge"
+                                id="profileRole"
+                            >
+                                USER
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-details">
+
+                        <div>
+
+                            <span>
+                                📧 Email
+                            </span>
+
+                            <strong id="detailEmail">
+                                Loading...
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                🎓 Account Type
+                            </span>
+
+                            <strong>
+                                Student
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================
+                     QUICK ACTIONS
+                ============================== -->
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h2>
+                            Quick Actions
+                        </h2>
+
+                    </div>
+
+
+                    <div class="quick-actions">
+
+                        <button class="action-card">
+
+                            <span>
+                                ➕
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Add Skill
+                                </strong>
+
+                                <small>
+                                    Share what you know
+                                </small>
+
+                            </div>
+
+                        </button>
+
+
+                        <button class="action-card">
+
+                            <span>
+                                🔍
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Find a Skill
+                                </strong>
+
+                                <small>
+                                    Learn from students
+                                </small>
+
+                            </div>
+
+                        </button>
+
+
+                        <button class="action-card">
+
+                            <span>
+                                🔄
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Start Exchange
+                                </strong>
+
+                                <small>
+                                    Exchange your skills
+                                </small>
+
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 DISCOVER
+            ================================== -->
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Discover Skills
+                    </h2>
+
+                    <p>
+                        Explore skills shared by your campus community.
+                    </p>
+
+                </div>
+
+                <button class="view-all">
+                    View All →
+                </button>
+
+            </div>
+
+
+            <div class="skills-grid">
+
+
+                <div class="skill-card">
+
+                    <div class="skill-icon">
+                        💻
+                    </div>
+
+                    <h3>
+                        Web Development
+                    </h3>
+
+                    <p>
+                        HTML • CSS • JavaScript
+                    </p>
+
+                    <div class="skill-footer">
+
+                        <span>
+                            👤 Students
+                        </span>
+
+                        <button>
+                            Explore
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="skill-card">
+
+                    <div class="skill-icon">
+                        🐍
+                    </div>
+
+                    <h3>
+                        Python
+                    </h3>
+
+                    <p>
+                        Python • Django • Data
+                    </p>
+
+                    <div class="skill-footer">
+
+                        <span>
+                            👤 Students
+                        </span>
+
+                        <button>
+                            Explore
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="skill-card">
+
+                    <div class="skill-icon">
+                        ☕
+                    </div>
+
+                    <h3>
+                        Java
+                    </h3>
+
+                    <p>
+                        Core Java • Spring Boot
+                    </p>
+
+                    <div class="skill-footer">
+
+                        <span>
+                            👤 Students
+                        </span>
+
+                        <button>
+                            Explore
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="skill-card">
+
+                    <div class="skill-icon">
+                        🎨
+                    </div>
+
+                    <h3>
+                        UI / UX Design
+                    </h3>
+
+                    <p>
+                        Figma • Design • Prototyping
+                    </p>
+
+                    <div class="skill-footer">
+
+                        <span>
+                            👤 Students
+                        </span>
+
+                        <button>
+                            Explore
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================
+                 ACTIVITY
+            ================================== -->
+
+            <div class="card activity-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Activity
+                        </h2>
+
+                        <p>
+                            Your latest CampusSkillSwap activity.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="empty-activity">
+
+                    <div>
+                        📋
+                    </div>
+
+                    <h3>
+                        No activity yet
+                    </h3>
+
+                    <p>
+                        Start learning or sharing skills
+                        to see your activity here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================
+         JAVASCRIPT
+    ========================================== -->
+
+    <script src="../js/dashboard.js"></script>
 
 </body>
 
