@@ -1,6 +1,5 @@
 package com.campusskillswap.backend.service;
 
-
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,59 +10,102 @@ import com.campusskillswap.backend.repository.SkillRepository;
 import com.campusskillswap.backend.repository.UserRepository;
 import com.campusskillswap.backend.request.SkillRequest;
 
-
 @Service
 public class SkillService {
 
+    private final SkillRepository skillRepository;
 
-private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
 
-private final UserRepository userRepository;
+    public SkillService(
+            SkillRepository skillRepository,
+            UserRepository userRepository) {
 
+        this.skillRepository = skillRepository;
+        this.userRepository = userRepository;
+    }
 
+    // ==========================================
+    // ADD SKILL
+    // ==========================================
 
-public SkillService(
-SkillRepository skillRepository,
-UserRepository userRepository){
+    public Skill addSkill(
+            SkillRequest request,
+            String email) {
 
-this.skillRepository=skillRepository;
-this.userRepository=userRepository;
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-}
+        Skill skill = new Skill();
 
+        skill.setName(request.getName());
+        skill.setDescription(request.getDescription());
+        skill.setCategory(request.getCategory());
+        skill.setLevel(request.getLevel());
 
+        skill.setUser(user);
 
-public Skill addSkill(
-SkillRequest request,
-String email){
+        return skillRepository.save(skill);
+    }
 
+    // ==========================================
+    // GET LOGGED-IN USER SKILLS
+    // ==========================================
 
-User user=userRepository
-.findByEmail(email)
-.orElseThrow();
+    public List<Skill> getMySkills(String email) {
 
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-Skill skill=new Skill();
+        return skillRepository.findByUser(user);
+    }
 
-skill.setName(request.getName());
-skill.setDescription(request.getDescription());
-skill.setCategory(request.getCategory());
-skill.setLevel(request.getLevel());
+    // ==========================================
+    // DELETE SKILL
+    // ==========================================
 
-skill.setUser(user);
+    public void deleteSkill(
+            Long skillId,
+            String email) {
 
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-return skillRepository.save(skill);
+        Skill skill = skillRepository
+                .findById(skillId)
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Skill not found"
+                        )
+                );
 
-}
+        // Security check:
+        // User can delete only their own skill.
 
+        if (!skill.getUser()
+                .getId()
+                .equals(user.getId())) {
 
+            throw new RuntimeException(
+                    "You cannot delete this skill"
+            );
+        }
 
-public List<Skill> getAll(){
-
-return skillRepository.findAll();
-
-}
-
-
+        skillRepository.delete(skill);
+    }
 }
