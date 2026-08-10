@@ -17,33 +17,38 @@ import com.campusskillswap.backend.service.AuthService;
 @CrossOrigin
 public class AuthController {
 
-
     private final AuthService authService;
 
-
-    public AuthController(AuthService authService){
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
+    @PostMapping("/register")
+    public User register(
+            @RequestBody RegisterRequest request) {
 
-   @PostMapping("/register")
-public User register(@RequestBody RegisterRequest request) {
+        System.out.println(
+            "Username: " +
+            request.getUsername()
+        );
 
-    System.out.println("Username: " + request.getUsername());
-    System.out.println("Email: " + request.getEmail());
+        System.out.println(
+            "Email: " +
+            request.getEmail()
+        );
 
-    return authService.register(request);
-}
+        return authService.register(request);
+    }
 
-@GetMapping("/test")
-public String test() {
-    return "Backend Working";
-}
+    @GetMapping("/test")
+    public String test() {
+        return "Backend Working";
+    }
 
-@PostMapping("/login")
-public String login(@RequestBody LoginRequest request){
+    @PostMapping("/login")
+    public String login(
+            @RequestBody LoginRequest request) {
 
-    return authService.login(request);
-
-}
+        return authService.login(request);
+    }
 }
