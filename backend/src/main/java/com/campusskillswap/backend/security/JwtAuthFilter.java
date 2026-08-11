@@ -37,29 +37,53 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+        System.out.println("======================================");
+        System.out.println("REQUEST: " + request.getMethod()
+                + " " + request.getRequestURI());
+        System.out.println("AUTH HEADER PRESENT: "
+                + (authHeader != null));
+
         String email = null;
-        
 
-        // Check Authorization header
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        // ==========================================
+        // CHECK JWT HEADER
+        // ==========================================
 
-           String token = authHeader.substring(7);
+        if (authHeader != null &&
+                authHeader.startsWith("Bearer ")) {
+
+            String token = authHeader.substring(7);
 
             try {
+
                 email = jwtService.extractEmail(token);
+
+                System.out.println(
+                        "JWT EMAIL: " + email
+                );
+
             } catch (Exception e) {
-                System.out.println("Invalid JWT token: " + e.getMessage());
+
+                System.out.println(
+                        "JWT TOKEN ERROR: " + e.getMessage()
+                );
             }
         }
 
-        // Authenticate user
+        // ==========================================
+        // AUTHENTICATE USER
+        // ==========================================
+
         if (email != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication() == null) {
 
             try {
 
                 UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(email);
+                        userDetailsService
+                                .loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -77,15 +101,37 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         .getContext()
                         .setAuthentication(authentication);
 
-                System.out.println("JWT Authentication successful: " + email);
+                System.out.println(
+                        "JWT AUTHENTICATION SUCCESS: "
+                                + email
+                );
+
+                System.out.println(
+                        "AUTHORITIES: "
+                                + userDetails.getAuthorities()
+                );
 
             } catch (Exception e) {
 
                 System.out.println(
-                        "User authentication failed: " + e.getMessage()
+                        "USER AUTHENTICATION FAILED: "
+                                + e.getMessage()
                 );
             }
         }
+
+        // ==========================================
+        // FINAL SECURITY CONTEXT
+        // ==========================================
+
+        System.out.println(
+                "SECURITY CONTEXT AUTH: "
+                        + SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+        );
+
+        System.out.println("======================================");
 
         filterChain.doFilter(request, response);
     }

@@ -2,7 +2,13 @@
 // CAMPUS SKILLSWAP - DASHBOARD JS
 // ==========================================
 
+
+// ==========================================
+// API
+// ==========================================
+
 const API_BASE_URL = "http://localhost:8081";
+
 
 // ==========================================
 // AUTH
@@ -185,9 +191,13 @@ async function loadSkills() {
             response.status === 403
         ) {
 
-            logout();
-            return;
+            alert(
+                "Authentication failed. Please login again."
+            );
 
+            logout();
+
+            return;
         }
 
 
@@ -248,7 +258,6 @@ async function loadSkills() {
             </div>
 
         `;
-
     }
 }
 
@@ -349,14 +358,6 @@ function displaySkills(skills) {
                 skill.id || "";
 
 
-            /*
-             * Backend Skill entity should contain:
-             *
-             * skill.user.id
-             * skill.user.username
-             *
-             */
-
             const receiverId =
                 skill.user &&
                 skill.user.id
@@ -455,7 +456,6 @@ function displaySkills(skills) {
 
         }
     );
-
 }
 
 
@@ -822,7 +822,8 @@ function setupAddSkillForm() {
                 "Adding...";
 
 
-            message.textContent = "";
+            message.textContent =
+                "";
 
 
             try {
@@ -889,7 +890,12 @@ function setupAddSkillForm() {
                     response.status === 403
                 ) {
 
+                    alert(
+                        "Authentication failed. Please login again."
+                    );
+
                     logout();
+
                     return;
 
                 }
@@ -986,17 +992,7 @@ function scrollToSkills() {
 
 
 // ==========================================
-// START EXCHANGE
-// ==========================================
-
-function showExchangeMessage() {
-
-    openExchangeModal();
-}
-
-
-// ==========================================
-// OPEN EXCHANGE MODAL
+// EXCHANGE MODAL
 // ==========================================
 
 function openExchangeModal() {
@@ -1016,10 +1012,6 @@ function openExchangeModal() {
     }
 }
 
-
-// ==========================================
-// CLOSE EXCHANGE MODAL
-// ==========================================
 
 function closeExchangeModal() {
 
@@ -1094,8 +1086,10 @@ function startSkillExchange(
         );
 
 
-    if (!exchangeSkillId ||
-        !receiverInput) {
+    if (
+        !exchangeSkillId ||
+        !receiverInput
+    ) {
 
         alert(
             "Exchange form is missing from the page."
@@ -1282,8 +1276,9 @@ function setupExchangeForm() {
                     response.status === 403
                 ) {
 
-                    logout();
-                    return;
+                    throw new Error(
+                        "Authentication failed. Token invalid or expired."
+                    );
 
                 }
 
@@ -1362,6 +1357,17 @@ function setupExchangeForm() {
 
 async function loadExchangeRequests() {
 
+    const container =
+        document.getElementById(
+            "exchangeRequestsContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
     try {
 
         const response =
@@ -1369,7 +1375,6 @@ async function loadExchangeRequests() {
                 API_BASE_URL +
                 "/api/exchange",
                 {
-
                     method: "GET",
 
                     headers: {
@@ -1381,7 +1386,6 @@ async function loadExchangeRequests() {
                             "application/json"
 
                     }
-
                 }
             );
 
@@ -1397,7 +1401,10 @@ async function loadExchangeRequests() {
             response.status === 403
         ) {
 
-            logout();
+            console.error(
+                "Authentication failed"
+            );
+
             return;
 
         }
@@ -1406,7 +1413,7 @@ async function loadExchangeRequests() {
         if (!response.ok) {
 
             throw new Error(
-                "Failed to load exchange requests."
+                "Failed to load exchange requests"
             );
 
         }
@@ -1422,234 +1429,239 @@ async function loadExchangeRequests() {
         );
 
 
+        // ==================================
+        // UPDATE EXCHANGE COUNT
+        // ==================================
+
         updateExchangeCount(
-            requests.length
+            Array.isArray(requests)
+                ? requests.length
+                : 0
         );
 
 
-        displayExchangeRequests(
-            requests
+        // ==================================
+        // NO REQUESTS
+        // ==================================
+
+        if (
+            !Array.isArray(requests) ||
+            requests.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="empty-activity">
+
+                    <div class="activity-icon">
+                        📭
+                    </div>
+
+                    <h3>
+                        No Exchange Requests
+                    </h3>
+
+                    <p>
+                        You don't have any
+                        pending exchange requests.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        // ==================================
+        // DISPLAY REQUESTS
+        // ==================================
+
+        container.innerHTML = "";
+
+
+        requests.forEach(
+            function (request) {
+
+                const sender =
+                    request.sender || {};
+
+
+                const receiver =
+                    request.receiver || {};
+
+
+                const skill =
+                    request.skill || {};
+
+
+                const senderName =
+                    sender.username ||
+                    sender.email ||
+                    "Student";
+
+
+                const skillName =
+                    skill.name ||
+                    "Unknown Skill";
+
+
+                const status =
+                    request.status ||
+                    "PENDING";
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "exchange-request";
+
+
+                card.innerHTML = `
+
+                    <div class="exchange-request-info">
+
+                        <div class="exchange-avatar">
+
+                            ${escapeHTML(
+                                senderName
+                                    .charAt(0)
+                                    .toUpperCase()
+                            )}
+
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                ${escapeHTML(
+                                    senderName
+                                )}
+                            </h3>
+
+
+                            <p>
+
+                                Wants to exchange
+                                <strong>
+                                    ${escapeHTML(
+                                        skillName
+                                    )}
+                                </strong>
+
+                            </p>
+
+
+                            <span
+                                class="exchange-status ${status.toLowerCase()}"
+                            >
+                                ${escapeHTML(status)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    ${
+                        status === "PENDING"
+                        ?
+
+                        `
+
+                        <div class="exchange-actions">
+
+                            <button
+                                type="button"
+                                class="accept-btn"
+                                onclick="acceptExchangeRequest(${request.id})"
+                            >
+                                ✓ Accept
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="reject-btn"
+                                onclick="rejectExchangeRequest(${request.id})"
+                            >
+                                ✕ Reject
+                            </button>
+
+                        </div>
+
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                `;
+
+
+                container.appendChild(
+                    card
+                );
+
+            }
         );
 
 
     } catch (error) {
 
         console.error(
-            "Load Exchange Requests Error:",
+            "Exchange Request Error:",
             error
         );
 
-    }
-}
-
-
-// ==========================================
-// UPDATE EXCHANGE COUNT
-// ==========================================
-
-function updateExchangeCount(count) {
-
-    const exchangeCount =
-        document.getElementById(
-            "exchangeCount"
-        );
-
-
-    if (exchangeCount) {
-
-        exchangeCount.textContent =
-            count;
-
-    }
-}
-
-
-// ==========================================
-// DISPLAY EXCHANGE REQUESTS
-// ==========================================
-
-function displayExchangeRequests(
-    requests
-) {
-
-    /*
-     * If you have an element:
-     *
-     * <div id="exchangeRequests"></div>
-     *
-     * requests will be displayed there.
-     */
-
-    const container =
-        document.getElementById(
-            "exchangeRequests"
-        );
-
-
-    if (!container) {
-
-        console.log(
-            "exchangeRequests container not found."
-        );
-
-        return;
-
-    }
-
-
-    container.innerHTML = "";
-
-
-    if (
-        !Array.isArray(requests) ||
-        requests.length === 0
-    ) {
 
         container.innerHTML = `
 
             <div class="empty-activity">
 
                 <div class="activity-icon">
-                    📭
+                    ⚠️
                 </div>
 
                 <h3>
-                    No Exchange Requests
+                    Unable to load requests
                 </h3>
 
                 <p>
-                    You have no received exchange requests.
+                    Please try again.
                 </p>
+
+                <button
+                    type="button"
+                    onclick="loadExchangeRequests()"
+                >
+                    Try Again
+                </button>
 
             </div>
 
         `;
 
-        return;
-
     }
-
-
-    requests.forEach(
-        function (request) {
-
-            const senderName =
-                request.sender &&
-                request.sender.username
-                    ? request.sender.username
-                    : "Student";
-
-
-            const skillName =
-                request.skill &&
-                request.skill.name
-                    ? request.skill.name
-                    : "Unknown Skill";
-
-
-            const status =
-                request.status ||
-                "PENDING";
-
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "exchange-request-card";
-
-
-            card.innerHTML = `
-
-                <div class="exchange-request-info">
-
-                    <div class="exchange-request-icon">
-                        🔄
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            ${escapeHTML(senderName)}
-                        </h3>
-
-                        <p>
-                            wants to exchange
-                            <strong>
-                                ${escapeHTML(skillName)}
-                            </strong>
-                        </p>
-
-                        <span class="exchange-status ${status.toLowerCase()}">
-                            ${escapeHTML(status)}
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                ${
-                    status === "PENDING"
-                    ?
-
-                    `
-
-                    <div class="exchange-actions">
-
-                        <button
-                            type="button"
-                            class="accept-btn"
-                            onclick="acceptExchange(${request.id})"
-                        >
-                            Accept
-                        </button>
-
-                        <button
-                            type="button"
-                            class="reject-btn"
-                            onclick="rejectExchange(${request.id})"
-                        >
-                            Reject
-                        </button>
-
-                    </div>
-
-                    `
-
-                    :
-
-                    ""
-
-                }
-
-            `;
-
-
-            container.appendChild(
-                card
-            );
-
-        }
-    );
 }
 
 
 // ==========================================
-// ACCEPT EXCHANGE
+// ACCEPT EXCHANGE REQUEST
 // ==========================================
 
-async function acceptExchange(
-    exchangeId
-) {
+async function acceptExchangeRequest(id) {
 
-    if (!exchangeId) {
-
+    if (!id) {
         return;
-
     }
 
 
@@ -1659,7 +1671,7 @@ async function acceptExchange(
             await fetch(
                 API_BASE_URL +
                 "/api/exchange/" +
-                exchangeId +
+                id +
                 "/accept",
                 {
 
@@ -1700,7 +1712,10 @@ async function acceptExchange(
             response.status === 403
         ) {
 
-            logout();
+            alert(
+                "Authentication failed. Please login again."
+            );
+
             return;
 
         }
@@ -1717,11 +1732,11 @@ async function acceptExchange(
 
 
         alert(
-            "Exchange request accepted!"
+            "Exchange request accepted! ✅"
         );
 
 
-        loadExchangeRequests();
+        await loadExchangeRequests();
 
 
     } catch (error) {
@@ -1741,17 +1756,13 @@ async function acceptExchange(
 
 
 // ==========================================
-// REJECT EXCHANGE
+// REJECT EXCHANGE REQUEST
 // ==========================================
 
-async function rejectExchange(
-    exchangeId
-) {
+async function rejectExchangeRequest(id) {
 
-    if (!exchangeId) {
-
+    if (!id) {
         return;
-
     }
 
 
@@ -1761,7 +1772,7 @@ async function rejectExchange(
             await fetch(
                 API_BASE_URL +
                 "/api/exchange/" +
-                exchangeId +
+                id +
                 "/reject",
                 {
 
@@ -1802,7 +1813,10 @@ async function rejectExchange(
             response.status === 403
         ) {
 
-            logout();
+            alert(
+                "Authentication failed. Please login again."
+            );
+
             return;
 
         }
@@ -1819,11 +1833,11 @@ async function rejectExchange(
 
 
         alert(
-            "Exchange request rejected."
+            "Exchange request rejected. ❌"
         );
 
 
-        loadExchangeRequests();
+        await loadExchangeRequests();
 
 
     } catch (error) {
@@ -1843,6 +1857,27 @@ async function rejectExchange(
 
 
 // ==========================================
+// UPDATE EXCHANGE COUNT
+// ==========================================
+
+function updateExchangeCount(count) {
+
+    const exchangeCount =
+        document.getElementById(
+            "exchangeCount"
+        );
+
+
+    if (exchangeCount) {
+
+        exchangeCount.textContent =
+            count;
+
+    }
+}
+
+
+// ==========================================
 // LOGOUT
 // ==========================================
 
@@ -1851,6 +1886,7 @@ function logout() {
     localStorage.removeItem(
         "token"
     );
+
 
     localStorage.removeItem(
         "userEmail"
