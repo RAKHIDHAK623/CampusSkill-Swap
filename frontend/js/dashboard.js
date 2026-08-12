@@ -2,13 +2,11 @@
 // CAMPUS SKILLSWAP - DASHBOARD JS
 // ==========================================
 
-
 // ==========================================
 // API
 // ==========================================
 
 const API_BASE_URL = "http://localhost:8081";
-
 
 // ==========================================
 // AUTH
@@ -17,103 +15,214 @@ const API_BASE_URL = "http://localhost:8081";
 const token = localStorage.getItem("token");
 const userEmail = localStorage.getItem("userEmail");
 
+// Get role saved during login
+const userRole =
+    localStorage.getItem("userRole") || "STUDENT";
+
+console.log("=================================");
+console.log("DASHBOARD AUTH");
+console.log("EMAIL:", userEmail);
+console.log("ROLE:", userRole);
+console.log("TOKEN PRESENT:", !!token);
+console.log("=================================");
+
 if (!token) {
     window.location.href = "login.html";
 }
-
 
 // ==========================================
 // DOM READY
 // ==========================================
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    loadDashboardUser();
+        loadDashboardUser();
 
-    setupMobileMenu();
+        setupMobileMenu();
 
-    setupNavigation();
+        setupNavigation();
 
-    setupSearch();
+        setupSearch();
 
-    loadSkills();
+        loadSkills();
 
-    setupAddSkillForm();
+        setupAddSkillForm();
 
-    setupExchangeForm();
+        setupExchangeForm();
 
-    loadExchangeRequests();
+        loadExchangeRequests();
 
-});
+    }
+);
 
 
 // ==========================================
-// LOAD USER
+// LOAD DASHBOARD USER
 // ==========================================
 
 function loadDashboardUser() {
 
-    const email = userEmail || "student@example.com";
+    console.log("Loading dashboard user...");
 
-    let username = "Student";
+    // ======================================
+    // EMAIL
+    // ======================================
 
-    if (email.includes("@")) {
-        username = email.split("@")[0];
-    }
+    const email =
+        localStorage.getItem("userEmail");
 
-    const displayName =
-        username.charAt(0).toUpperCase() +
-        username.slice(1);
-
-    const firstLetter =
-        displayName.charAt(0).toUpperCase();
+    console.log("User Email:", email);
 
 
-    const welcomeUsername =
-        document.getElementById("welcomeUsername");
+    // ======================================
+    // USERNAME
+    // ======================================
 
-    if (welcomeUsername) {
-        welcomeUsername.textContent = displayName;
-    }
+    const username =
+        email
+            ? email.split("@")[0]
+            : "Student";
 
+
+    // ======================================
+    // ROLE
+    // ======================================
+
+    const role =
+        localStorage.getItem("role") ||
+        localStorage.getItem("userRole") ||
+        "STUDENT";
+
+
+    console.log("User Role:", role);
+
+
+    // ======================================
+    // DISPLAY ROLE
+    // ======================================
+
+    const displayRole =
+        role.charAt(0).toUpperCase() +
+        role.slice(1).toLowerCase();
+
+
+    // ======================================
+    // TOP USERNAME
+    // ======================================
 
     const topUsername =
         document.getElementById("topUsername");
 
     if (topUsername) {
-        topUsername.textContent = displayName;
+        topUsername.textContent = username;
     }
 
+
+    // ======================================
+    // WELCOME USERNAME
+    // ======================================
+
+    const welcomeUsername =
+        document.getElementById("welcomeUsername");
+
+    if (welcomeUsername) {
+        welcomeUsername.textContent = username;
+    }
+
+
+    // ======================================
+    // PROFILE USERNAME
+    // ======================================
 
     const profileUsername =
         document.getElementById("profileUsername");
 
     if (profileUsername) {
-        profileUsername.textContent = displayName;
+        profileUsername.textContent = username;
     }
 
+
+    // ======================================
+    // PROFILE EMAIL
+    // ======================================
 
     const profileEmail =
         document.getElementById("profileEmail");
 
     if (profileEmail) {
-        profileEmail.textContent = email;
+        profileEmail.textContent =
+            email || "No email";
     }
 
+
+    // ======================================
+    // DETAIL EMAIL
+    // ======================================
 
     const detailEmail =
         document.getElementById("detailEmail");
 
     if (detailEmail) {
-        detailEmail.textContent = email;
+        detailEmail.textContent =
+            email || "No email";
     }
+
+
+    // ======================================
+    // PROFILE ROLE
+    // ======================================
+
+    const profileRole =
+        document.getElementById("profileRole");
+
+    if (profileRole) {
+        profileRole.textContent =
+            displayRole;
+    }
+
+
+    // ======================================
+    // TOP ROLE
+    // ======================================
+
+    const topRole =
+        document.getElementById("topRole");
+
+    if (topRole) {
+        topRole.textContent =
+            displayRole;
+    }
+
+
+    // ======================================
+    // ACCOUNT TYPE
+    // ======================================
+
+    const accountType =
+        document.getElementById("accountType");
+
+    if (accountType) {
+        accountType.textContent =
+            displayRole;
+    }
+
+
+    // ======================================
+    // AVATAR
+    // ======================================
+
+    const firstLetter =
+        username.charAt(0).toUpperCase();
 
 
     const avatarLetter =
         document.getElementById("avatarLetter");
 
     if (avatarLetter) {
-        avatarLetter.textContent = firstLetter;
+        avatarLetter.textContent =
+            firstLetter;
     }
 
 
@@ -121,10 +230,29 @@ function loadDashboardUser() {
         document.getElementById("profileLetter");
 
     if (profileLetter) {
-        profileLetter.textContent = firstLetter;
+        profileLetter.textContent =
+            firstLetter;
+    }
+
+
+    // ======================================
+    // USER TYPE CLASS
+    // ======================================
+
+    if (role === "ADMIN") {
+
+        document.body.classList.add(
+            "admin-user"
+        );
+
+    } else {
+
+        document.body.classList.add(
+            "student-user"
+        );
+
     }
 }
-
 
 // ==========================================
 // LOAD SKILLS
@@ -133,7 +261,9 @@ function loadDashboardUser() {
 async function loadSkills() {
 
     const skillsContainer =
-        document.getElementById("skillsContainer");
+        document.getElementById(
+            "skillsContainer"
+        );
 
     if (!skillsContainer) {
         return;
@@ -165,17 +295,22 @@ async function loadSkills() {
 
         const response =
             await fetch(
-                API_BASE_URL + "/api/skills",
+                API_BASE_URL +
+                "/api/skills",
                 {
+
                     method: "GET",
 
                     headers: {
+
                         "Authorization":
                             "Bearer " + token,
 
                         "Content-Type":
                             "application/json"
+
                     }
+
                 }
             );
 
@@ -198,6 +333,7 @@ async function loadSkills() {
             logout();
 
             return;
+
         }
 
 
@@ -258,7 +394,9 @@ async function loadSkills() {
             </div>
 
         `;
+
     }
+
 }
 
 
@@ -316,10 +454,13 @@ function displaySkills(skills) {
         updateSkillCount(0);
 
         return;
+
     }
 
 
-    updateSkillCount(skills.length);
+    updateSkillCount(
+        skills.length
+    );
 
 
     skillsContainer.innerHTML = "";
@@ -329,7 +470,9 @@ function displaySkills(skills) {
         function (skill) {
 
             const card =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
 
             card.className =
@@ -337,11 +480,13 @@ function displaySkills(skills) {
 
 
             const category =
-                skill.category || "General";
+                skill.category ||
+                "General";
 
 
             const level =
-                skill.level || "BEGINNER";
+                skill.level ||
+                "BEGINNER";
 
 
             const description =
@@ -355,7 +500,8 @@ function displaySkills(skills) {
 
 
             const skillId =
-                skill.id || "";
+                skill.id ||
+                "";
 
 
             const receiverId =
@@ -456,6 +602,7 @@ function displaySkills(skills) {
 
         }
     );
+
 }
 
 
@@ -477,6 +624,7 @@ function updateSkillCount(count) {
             count;
 
     }
+
 }
 
 
@@ -566,6 +714,7 @@ function getSkillIcon(category) {
 
 
     return "📚";
+
 }
 
 
@@ -607,6 +756,7 @@ function setupMobileMenu() {
 
         }
     );
+
 }
 
 
@@ -649,6 +799,7 @@ function setupNavigation() {
 
         }
     );
+
 }
 
 
@@ -713,6 +864,7 @@ function setupSearch() {
 
         }
     );
+
 }
 
 
@@ -735,6 +887,7 @@ function openAddSkillModal() {
         );
 
     }
+
 }
 
 
@@ -753,6 +906,7 @@ function closeAddSkillModal() {
         );
 
     }
+
 }
 
 
@@ -846,7 +1000,6 @@ function setupAddSkillForm() {
                                     "application/json"
 
                             },
-
 
                             body:
                                 JSON.stringify({
@@ -966,6 +1119,7 @@ function setupAddSkillForm() {
 
         }
     );
+
 }
 
 
@@ -988,6 +1142,7 @@ function scrollToSkills() {
         });
 
     }
+
 }
 
 
@@ -1010,6 +1165,7 @@ function openExchangeModal() {
         );
 
     }
+
 }
 
 
@@ -1028,11 +1184,12 @@ function closeExchangeModal() {
         );
 
     }
+
 }
 
 
 // ==========================================
-// START EXCHANGE FROM SKILL
+// START EXCHANGE
 // ==========================================
 
 function startSkillExchange(
@@ -1109,6 +1266,7 @@ function startSkillExchange(
 
 
     openExchangeModal();
+
 }
 
 
@@ -1239,7 +1397,6 @@ function setupExchangeForm() {
 
                             },
 
-
                             body:
                                 JSON.stringify({
 
@@ -1335,7 +1492,6 @@ function setupExchangeForm() {
                 message.className =
                     "modal-message error";
 
-
             } finally {
 
                 button.disabled =
@@ -1348,11 +1504,12 @@ function setupExchangeForm() {
 
         }
     );
+
 }
 
 
 // ==========================================
-// LOAD RECEIVED EXCHANGE REQUESTS
+// LOAD EXCHANGE REQUESTS
 // ==========================================
 
 async function loadExchangeRequests() {
@@ -1375,6 +1532,7 @@ async function loadExchangeRequests() {
                 API_BASE_URL +
                 "/api/exchange",
                 {
+
                     method: "GET",
 
                     headers: {
@@ -1386,6 +1544,7 @@ async function loadExchangeRequests() {
                             "application/json"
 
                     }
+
                 }
             );
 
@@ -1429,20 +1588,12 @@ async function loadExchangeRequests() {
         );
 
 
-        // ==================================
-        // UPDATE EXCHANGE COUNT
-        // ==================================
-
         updateExchangeCount(
             Array.isArray(requests)
                 ? requests.length
                 : 0
         );
 
-
-        // ==================================
-        // NO REQUESTS
-        // ==================================
 
         if (
             !Array.isArray(requests) ||
@@ -1475,10 +1626,6 @@ async function loadExchangeRequests() {
         }
 
 
-        // ==================================
-        // DISPLAY REQUESTS
-        // ==================================
-
         container.innerHTML = "";
 
 
@@ -1487,10 +1634,6 @@ async function loadExchangeRequests() {
 
                 const sender =
                     request.sender || {};
-
-
-                const receiver =
-                    request.receiver || {};
 
 
                 const skill =
@@ -1550,6 +1693,7 @@ async function loadExchangeRequests() {
                             <p>
 
                                 Wants to exchange
+
                                 <strong>
                                     ${escapeHTML(
                                         skillName
@@ -1602,6 +1746,7 @@ async function loadExchangeRequests() {
                         :
 
                         ""
+
                     }
 
                 `;
@@ -1651,6 +1796,7 @@ async function loadExchangeRequests() {
         `;
 
     }
+
 }
 
 
@@ -1752,6 +1898,7 @@ async function acceptExchangeRequest(id) {
         );
 
     }
+
 }
 
 
@@ -1853,6 +2000,7 @@ async function rejectExchangeRequest(id) {
         );
 
     }
+
 }
 
 
@@ -1874,6 +2022,7 @@ function updateExchangeCount(count) {
             count;
 
     }
+
 }
 
 
@@ -1893,8 +2042,14 @@ function logout() {
     );
 
 
+    localStorage.removeItem(
+        "userRole"
+    );
+
+
     window.location.href =
         "login.html";
+
 }
 
 
@@ -1930,4 +2085,5 @@ function escapeHTML(value) {
             /'/g,
             "&#039;"
         );
+
 }

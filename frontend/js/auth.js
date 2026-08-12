@@ -1,6 +1,7 @@
-
 // ==========================================
-// CAMPUS SKILL SWAP API
+// CAMPUS SKILLSWAP - FIREBASE AUTH.JS
+// Firebase Login + Firebase Register
+// Spring Boot Backend Integration
 // ==========================================
 
 const API_BASE_URL = "http://localhost:8081/api";
@@ -47,6 +48,41 @@ function togglePassword(inputId, button) {
 }
 
 
+// Make onclick="togglePassword()" work
+window.togglePassword = togglePassword;
+
+
+// ==========================================
+// FIREBASE AUTH HELPER
+// ==========================================
+
+async function getFirebaseAuthFunctions() {
+
+    const firebaseAuth = await import(
+        "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js"
+    );
+
+    return firebaseAuth;
+}
+
+
+// ==========================================
+// FIREBASE AUTH CHECK
+// ==========================================
+
+function checkFirebaseAuth() {
+
+    if (!window.firebaseAuth) {
+
+        throw new Error(
+            "Firebase is not initialized."
+        );
+    }
+
+    return window.firebaseAuth;
+}
+
+
 // ==========================================
 // LOGIN
 // ==========================================
@@ -55,260 +91,467 @@ const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
 
-    loginForm.addEventListener("submit", async function (event) {
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const email =
-            document.getElementById("loginEmail").value.trim();
+            const email = document
+                .getElementById("loginEmail")
+                .value
+                .trim();
 
-        const password =
-            document.getElementById("loginPassword").value;
+            const password = document
+                .getElementById("loginPassword")
+                .value;
 
-        const button =
-            document.getElementById("loginButton");
-
-
-        // ==================================
-        // VALIDATION
-        // ==================================
-
-        if (!email || !password) {
-
-            showMessage(
-                "loginMessage",
-                "Please enter email and password.",
-                "error"
+            const button = document.getElementById(
+                "loginButton"
             );
 
-            return;
-        }
-
-
-        button.disabled = true;
-        button.textContent = "Logging in...";
-
-
-        try {
 
             // ==================================
-            // LOGIN API
+            // VALIDATION
             // ==================================
 
-            const response = await fetch(
-                `${API_BASE_URL}/auth/login`,
-                {
-                    method: "POST",
+            if (!email || !password) {
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                showMessage(
+                    "loginMessage",
+                    "Please enter email and password.",
+                    "error"
+                );
 
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                return;
+            }
+
+
+            button.disabled = true;
+
+            button.textContent =
+                "Logging in...";
+
+
+            try {
+
+                // ==================================
+                // FIREBASE AUTH
+                // ==================================
+
+                const auth = checkFirebaseAuth();
+
+                const {
+                    signInWithEmailAndPassword
+                } = await getFirebaseAuthFunctions();
+
+
+                console.log(
+                    "Starting Firebase login..."
+                );
+
+
+                const firebaseResult =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+
+                const firebaseUser =
+                    firebaseResult.user;
+
+
+                console.log(
+                    "Firebase Login Successful:",
+                    firebaseUser.email
+                );
+
+
+                // ==================================
+                // FIREBASE ID TOKEN
+                // ==================================
+
+                const firebaseToken =
+                    await firebaseUser.getIdToken();
+
+
+                console.log(
+                    "Firebase ID Token received."
+                );
+
+
+                // ==================================
+                // SPRING BOOT LOGIN
+                // ==================================
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/auth/login`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                email: email,
+
+                                password: password
+
+                            })
+                        }
+                    );
+
+
+                const responseText =
+                    await response.text();
+
+
+                console.log(
+                    "Spring Boot Login Status:",
+                    response.status
+                );
+
+
+                console.log(
+                    "Spring Boot Login Response:",
+                    responseText
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Firebase login succeeded, but backend login failed."
+                    );
                 }
-            );
-            
-
-            console.log("LOGIN RESPONSE RECEIVED");
-            console.log("STATUS:", response.status);
-            
-            const responseText = await response.text();
 
 
-            console.log("Login Status:", response.status);
-            console.log("Login Response:", responseText);
+                // ==================================
+                // GET BACKEND JWT + ROLE
+                // ==================================
 
+                let token =
+                    responseText.trim();
 
-            // ==================================
-            // LOGIN FAILED
-            // ==================================
+                let role = null;
 
-            if (!response.ok) {
-
-                let errorMessage = "Login failed.";
 
                 try {
 
-                    const errorData = JSON.parse(responseText);
+                    const data =
+                        JSON.parse(
+                            responseText
+                        );
 
-                    errorMessage =
-                        errorData.message ||
-                        errorData.error ||
-                        errorMessage;
+
+                    console.log(
+                        "Backend Login Data:",
+                        data
+                    );
+
+
+                    // ----------------------------------
+                    // BACKEND RETURNS STRING
+                    // ----------------------------------
+
+                    if (
+                        typeof data === "string"
+                    ) {
+
+                        token = data;
+
+                    }
+
+                    // ----------------------------------
+                    // BACKEND RETURNS OBJECT
+                    // ----------------------------------
+
+                    else {
+
+                        // TOKEN
+
+                        if (data.token) {
+
+                            token =
+                                data.token;
+
+                        }
+
+                        else if (data.accessToken) {
+
+                            token =
+                                data.accessToken;
+
+                        }
+
+                        else if (data.jwt) {
+
+                            token =
+                                data.jwt;
+
+                        }
+
+
+                        // ROLE
+
+                        if (data.role) {
+
+                            role =
+                                data.role;
+
+                        }
+
+                        else if (data.userRole) {
+
+                            role =
+                                data.userRole;
+
+                        }
+
+                        else if (
+                            data.user &&
+                            data.user.role
+                        ) {
+
+                            role =
+                                data.user.role;
+
+                        }
+                    }
+
 
                 } catch (error) {
 
-                    if (responseText) {
-                        errorMessage = responseText;
-                    }
+                    console.log(
+                        "Backend returned plain JWT."
+                    );
                 }
 
-                throw new Error(errorMessage);
-            }
+
+                // ==================================
+                // CLEAN TOKEN
+                // ==================================
+
+                token =
+                    token
+                        .trim()
+                        .replace(
+                            /^"|"$/g,
+                            ""
+                        );
 
 
-            // ==================================
-            // GET JWT TOKEN
-            // ==================================
+                // ==================================
+                // CHECK TOKEN
+                // ==================================
 
-            let token = responseText.trim();
+                if (!token) {
 
-
-            // Backend JSON response handle
-            try {
-
-                const data = JSON.parse(responseText);
-
-
-                // Example:
-                // "eyJhbGciOiJIUzI1NiJ9..."
-
-                if (typeof data === "string") {
-
-                    token = data;
+                    throw new Error(
+                        "Backend JWT token was not received."
+                    );
                 }
 
-                // Example:
-                // { "token": "eyJ..." }
 
-                else if (data.token) {
+                // ==================================
+                // SAVE AUTH DATA
+                // ==================================
 
-                    token = data.token;
+                localStorage.setItem(
+                    "token",
+                    token
+                );
+
+
+                localStorage.setItem(
+                    "firebaseToken",
+                    firebaseToken
+                );
+
+
+                localStorage.setItem(
+                    "userEmail",
+                    firebaseUser.email
+                );
+
+
+                // ==================================
+                // SAVE ROLE
+                // ==================================
+
+                if (role) {
+
+                    localStorage.setItem(
+                        "role",
+                        role
+                    );
+
+                    console.log(
+                        "Role saved:",
+                        role
+                    );
+
+                } else {
+
+                    console.warn(
+                        "Role was NOT returned by backend."
+                    );
+
+                    localStorage.removeItem(
+                        "role"
+                    );
                 }
 
-                // Example:
-                // { "accessToken": "eyJ..." }
 
-                else if (data.accessToken) {
+                // ==================================
+                // DEBUG
+                // ==================================
 
-                    token = data.accessToken;
-                }
+                console.log(
+                    "Backend JWT saved."
+                );
 
-                // Example:
-                // { "jwt": "eyJ..." }
+                console.log(
+                    "Firebase authentication complete."
+                );
 
-                else if (data.jwt) {
+                console.log(
+                    "Logged in email:",
+                    localStorage.getItem(
+                        "userEmail"
+                    )
+                );
 
-                    token = data.jwt;
-                }
+                console.log(
+                    "Logged in role:",
+                    localStorage.getItem(
+                        "role"
+                    )
+                );
+
+
+                // ==================================
+                // SUCCESS
+                // ==================================
+
+                showMessage(
+                    "loginMessage",
+                    "Login successful! Redirecting...",
+                    "success"
+                );
+
+
+                button.textContent =
+                    "Login Successful ✓";
+
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    },
+                    700
+                );
+
 
             } catch (error) {
 
-                // Backend returned plain JWT
-            }
-
-
-            // ==================================
-            // CLEAN TOKEN
-            // ==================================
-
-            token = token
-                .trim()
-                .replace(/^"|"$/g, "");
-
-
-            console.log("JWT Token:", token);
-
-
-            // ==================================
-            // TOKEN CHECK
-            // ==================================
-
-            if (!token) {
-
-                throw new Error(
-                    "Login successful but JWT token was not received."
+                console.error(
+                    "Firebase Login Error:",
+                    error
                 );
-            }
 
 
-            // ==================================
-            // SAVE JWT
-            // ==================================
-
-            localStorage.setItem("token", token);
-
-            localStorage.setItem("userEmail", email);
+                let message =
+                    "Unable to login.";
 
 
-            // Verify token was actually saved
+                // ==================================
+                // FIREBASE ERRORS
+                // ==================================
 
-            const savedToken =
-                localStorage.getItem("token");
+                if (
+                    error.code ===
+                    "auth/invalid-credential"
+                ) {
+
+                    message =
+                        "Invalid email or password.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/user-not-found"
+                ) {
+
+                    message =
+                        "No account found with this email.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/wrong-password"
+                ) {
+
+                    message =
+                        "Incorrect password.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/invalid-email"
+                ) {
+
+                    message =
+                        "Invalid email address.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/too-many-requests"
+                ) {
+
+                    message =
+                        "Too many login attempts. Try again later.";
+
+                }
+
+                else if (
+                    error.message
+                ) {
+
+                    message =
+                        error.message;
+                }
 
 
-            console.log(
-                "Saved Token:",
-                savedToken
-            );
-
-
-            if (!savedToken) {
-
-                throw new Error(
-                    "JWT token could not be saved in localStorage."
+                showMessage(
+                    "loginMessage",
+                    message,
+                    "error"
                 );
+
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Login";
             }
 
-
-            console.log(
-                "JWT saved successfully."
-            );
-
-
-            // ==================================
-            // SUCCESS MESSAGE
-            // ==================================
-
-            showMessage(
-                "loginMessage",
-                "Login successful! Redirecting...",
-                "success"
-            );
-
-
-            button.textContent =
-                "Login Successful ✓";
-
-
-            // ==================================
-            // DASHBOARD
-            // ==================================
-
-            setTimeout(function () {
-
-                window.location.href =
-                    "dashboard.html";
-
-            }, 1000);
-
-
-        } catch (error) {
-
-            console.error(
-                "Login Error:",
-                error
-            );
-
-
-            showMessage(
-                "loginMessage",
-                error.message ||
-                "Unable to login. Please try again.",
-                "error"
-            );
-
-
-            button.disabled = false;
-
-            button.textContent =
-                "Login";
         }
-
-    });
+    );
 }
 
 
@@ -318,7 +561,6 @@ if (loginForm) {
 
 const registerForm =
     document.getElementById("registerForm");
-
 
 if (registerForm) {
 
@@ -331,27 +573,35 @@ if (registerForm) {
 
             const username =
                 document
-                    .getElementById("registerUsername")
+                    .getElementById(
+                        "registerUsername"
+                    )
                     .value
                     .trim();
 
 
             const email =
                 document
-                    .getElementById("registerEmail")
+                    .getElementById(
+                        "registerEmail"
+                    )
                     .value
                     .trim();
 
 
             const password =
                 document
-                    .getElementById("registerPassword")
+                    .getElementById(
+                        "registerPassword"
+                    )
                     .value;
 
 
             const confirmPassword =
                 document
-                    .getElementById("confirmPassword")
+                    .getElementById(
+                        "confirmPassword"
+                    )
                     .value;
 
 
@@ -394,7 +644,10 @@ if (registerForm) {
             }
 
 
-            if (password !== confirmPassword) {
+            if (
+                password !==
+                confirmPassword
+            ) {
 
                 showMessage(
                     "registerMessage",
@@ -415,30 +668,104 @@ if (registerForm) {
             try {
 
                 // ==================================
-                // REGISTER API
+                // FIREBASE AUTH
                 // ==================================
 
-                const response = await fetch(
-                    `${API_BASE_URL}/auth/register`,
-                    {
-                        method: "POST",
+                const auth =
+                    checkFirebaseAuth();
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+                const {
+                    createUserWithEmailAndPassword
+                } =
+                    await getFirebaseAuthFunctions();
 
-                        body: JSON.stringify({
 
-                            username: username,
-
-                            email: email,
-
-                            password: password
-
-                        })
-                    }
+                console.log(
+                    "Creating Firebase user..."
                 );
+
+
+                const firebaseResult =
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+
+                const firebaseUser =
+                    firebaseResult.user;
+
+
+                console.log(
+                    "Firebase Registration Successful:",
+                    firebaseUser.email
+                );
+
+
+                // ==================================
+                // FIREBASE ID TOKEN
+                // ==================================
+
+                const firebaseToken =
+                    await firebaseUser.getIdToken();
+
+
+                console.log(
+                    "Firebase ID Token received."
+                );
+
+
+                // ==================================
+                // SAVE FIREBASE DATA
+                // ==================================
+
+                localStorage.setItem(
+                    "firebaseToken",
+                    firebaseToken
+                );
+
+
+                localStorage.setItem(
+                    "userEmail",
+                    firebaseUser.email
+                );
+
+
+                // ==================================
+                // REGISTER USER IN SPRING BOOT
+                // ==================================
+
+                console.log(
+                    "Creating backend user..."
+                );
+
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/auth/register`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                username:
+                                    username,
+
+                                email:
+                                    email,
+
+                                password:
+                                    password
+
+                            })
+                        }
+                    );
 
 
                 const responseText =
@@ -446,55 +773,28 @@ if (registerForm) {
 
 
                 console.log(
-                    "Register Status:",
+                    "Backend Register Status:",
                     response.status
                 );
 
 
                 console.log(
-                    "Register Response:",
+                    "Backend Register Response:",
                     responseText
                 );
 
 
-                // ==================================
-                // REGISTER FAILED
-                // ==================================
-
                 if (!response.ok) {
 
-                    let errorMessage =
-                        "Registration failed.";
-
-                    try {
-
-                        const errorData =
-                            JSON.parse(
-                                responseText
-                            );
-
-                        errorMessage =
-                            errorData.message ||
-                            errorData.error ||
-                            errorMessage;
-
-                    } catch (error) {
-
-                        if (responseText) {
-
-                            errorMessage =
-                                responseText;
-                        }
-                    }
-
                     throw new Error(
-                        errorMessage
+                        responseText ||
+                        "Backend registration failed."
                     );
                 }
 
 
                 // ==================================
-                // REGISTER SUCCESS
+                // SUCCESS
                 // ==================================
 
                 showMessage(
@@ -503,6 +803,46 @@ if (registerForm) {
                     "success"
                 );
 
+
+                button.textContent =
+                    "Account Created ✓";
+
+
+                // ==================================
+                // FIREBASE SIGN OUT
+                // ==================================
+
+                const {
+                    signOut
+                } =
+                    await getFirebaseAuthFunctions();
+
+
+                await signOut(auth);
+
+
+                // ==================================
+                // CLEAR TEMP DATA
+                // ==================================
+
+                localStorage.removeItem(
+                    "firebaseToken"
+                );
+
+
+                localStorage.removeItem(
+                    "userEmail"
+                );
+
+
+                localStorage.removeItem(
+                    "role"
+                );
+
+
+                // ==================================
+                // REDIRECT
+                // ==================================
 
                 setTimeout(
                     function () {
@@ -518,20 +858,74 @@ if (registerForm) {
             } catch (error) {
 
                 console.error(
-                    "Registration Error:",
+                    "Firebase Registration Error:",
                     error
                 );
 
 
+                let message =
+                    "Unable to create account.";
+
+
+                // ==================================
+                // FIREBASE ERRORS
+                // ==================================
+
+                if (
+                    error.code ===
+                    "auth/email-already-in-use"
+                ) {
+
+                    message =
+                        "This email is already registered.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/invalid-email"
+                ) {
+
+                    message =
+                        "Invalid email address.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/weak-password"
+                ) {
+
+                    message =
+                        "Password is too weak.";
+
+                }
+
+                else if (
+                    error.code ===
+                    "auth/operation-not-allowed"
+                ) {
+
+                    message =
+                        "Email/Password authentication is not enabled in Firebase.";
+
+                }
+
+                else if (
+                    error.message
+                ) {
+
+                    message =
+                        error.message;
+                }
+
+
                 showMessage(
                     "registerMessage",
-                    error.message ||
-                    "Unable to register. Please try again.",
+                    message,
                     "error"
                 );
 
-
-            } finally {
 
                 button.disabled = false;
 
@@ -542,4 +936,3 @@ if (registerForm) {
         }
     );
 }
-

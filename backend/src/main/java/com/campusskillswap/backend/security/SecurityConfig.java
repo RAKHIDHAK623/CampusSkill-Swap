@@ -98,12 +98,34 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // Authentication APIs
+                // ==============================
+                // PUBLIC AUTH APIs
+                // ==============================
+
                 .requestMatchers(
                     "/api/auth/**"
                 ).permitAll()
 
-                // Everything else requires JWT
+                // ==============================
+                // ADMIN ONLY
+                // ==============================
+
+                .requestMatchers(
+                    "/api/admin/**"
+                ).hasRole("ADMIN")
+
+                // ==============================
+                // STUDENT ONLY
+                // ==============================
+
+                .requestMatchers(
+                    "/api/student/**"
+                ).hasRole("STUDENT")
+
+                // ==============================
+                // OTHER AUTHENTICATED APIs
+                // ==============================
+
                 .anyRequest().authenticated()
             )
 

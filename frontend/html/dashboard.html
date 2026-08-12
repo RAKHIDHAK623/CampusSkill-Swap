@@ -19,13 +19,11 @@
 
 </head>
 
-
 <body>
 
-
-<!-- =====================================
+<!-- ==========================================
      SIDEBAR
-====================================== -->
+========================================== -->
 
 <aside class="sidebar" id="sidebar">
 
@@ -37,9 +35,7 @@
 
         <div class="brand-text">
 
-            <h2>
-                CampusSkillSwap
-            </h2>
+            <h2>CampusSkillSwap</h2>
 
             <span>
                 Skill • Share • Grow
@@ -133,15 +129,16 @@
 </aside>
 
 
-
-<!-- =====================================
-     MAIN
-====================================== -->
+<!-- ==========================================
+     MAIN CONTENT
+========================================== -->
 
 <main class="main-content">
 
 
-    <!-- TOPBAR -->
+    <!-- ======================================
+         TOPBAR
+    ======================================= -->
 
     <header class="topbar">
 
@@ -156,9 +153,7 @@
 
         <div class="search-box">
 
-            <span>
-                🔍
-            </span>
+            <span>🔍</span>
 
             <input
                 type="text"
@@ -198,7 +193,7 @@
                         User
                     </strong>
 
-                    <span>
+                    <span id="topRole">
                         Student
                     </span>
 
@@ -211,15 +206,16 @@
     </header>
 
 
-
-    <!-- =====================================
-         DASHBOARD
-    ====================================== -->
+    <!-- ======================================
+         DASHBOARD CONTAINER
+    ======================================= -->
 
     <section class="dashboard-container">
 
 
-        <!-- WELCOME -->
+        <!-- ==================================
+             WELCOME
+        =================================== -->
 
         <div class="welcome-section">
 
@@ -229,15 +225,17 @@
                     Welcome back 👋
                 </p>
 
-
                 <h1>
+
                     Hello,
+
                     <span id="welcomeUsername">
                         Student
                     </span>
-                    !
-                </h1>
 
+                    !
+
+                </h1>
 
                 <p>
                     Ready to learn something new
@@ -254,10 +252,9 @@
         </div>
 
 
-
-        <!-- =================================
+        <!-- ==================================
              STATS
-        ================================== -->
+        =================================== -->
 
         <div class="stats-grid">
 
@@ -316,7 +313,7 @@
                         Connections
                     </span>
 
-                    <strong>
+                    <strong id="connectionCount">
                         0
                     </strong>
 
@@ -337,7 +334,7 @@
                         Rating
                     </span>
 
-                    <strong>
+                    <strong id="rating">
                         0.0
                     </strong>
 
@@ -348,10 +345,9 @@
         </div>
 
 
-
-        <!-- =================================
+        <!-- ==================================
              PROFILE + QUICK ACTIONS
-        ================================== -->
+        =================================== -->
 
         <div class="dashboard-grid">
 
@@ -397,6 +393,9 @@
                             Loading...
                         </p>
 
+
+                        <!-- DYNAMIC ROLE -->
+
                         <span
                             class="role-badge"
                             id="profileRole"
@@ -410,6 +409,7 @@
 
 
                 <div class="profile-details">
+
 
                     <div>
 
@@ -430,7 +430,7 @@
                             🎓 Account Type
                         </span>
 
-                        <strong>
+                        <strong id="accountType">
                             Student
                         </strong>
 
@@ -439,7 +439,6 @@
                 </div>
 
             </div>
-
 
 
             <!-- QUICK ACTIONS -->
@@ -516,29 +515,30 @@
 
 
                     <!-- START EXCHANGE -->
+
                     <button
-    type="button"
-    class="action-card"
-    onclick="openExchangeModal()"
->
+                        type="button"
+                        class="action-card"
+                        onclick="openExchangeModal()"
+                    >
 
-    <span>
-        🔄
-    </span>
+                        <span>
+                            🔄
+                        </span>
 
-    <div>
+                        <div>
 
-        <strong>
-            Start Exchange
-        </strong>
+                            <strong>
+                                Start Exchange
+                            </strong>
 
-        <small>
-            Exchange your skills
-        </small>
+                            <small>
+                                Exchange your skills
+                            </small>
 
-    </div>
+                        </div>
 
-</button>
+                    </button>
 
                 </div>
 
@@ -547,10 +547,9 @@
         </div>
 
 
-
-        <!-- =================================
+        <!-- ==================================
              DISCOVER SKILLS
-        ================================== -->
+        =================================== -->
 
         <div
             class="section-header"
@@ -564,7 +563,8 @@
                 </h2>
 
                 <p>
-                    Explore skills shared by your campus community.
+                    Explore skills shared by your
+                    campus community.
                 </p>
 
             </div>
@@ -579,7 +579,6 @@
             </button>
 
         </div>
-
 
 
         <!-- SKILLS -->
@@ -608,10 +607,9 @@
         </div>
 
 
-
-        <!-- =================================
+        <!-- ==================================
              STUDENTS
-        ================================== -->
+        =================================== -->
 
         <div
             class="students-section"
@@ -627,7 +625,8 @@
                     </h2>
 
                     <p>
-                        Connect with students and exchange knowledge.
+                        Connect with students and
+                        exchange knowledge.
                     </p>
 
                 </div>
@@ -648,9 +647,9 @@
                     </h3>
 
                     <p>
-                        Find students who can teach you
-                        something new and share your own
-                        knowledge with others.
+                        Find students who can teach
+                        you something new and share
+                        your own knowledge with others.
                     </p>
 
                 </div>
@@ -660,10 +659,9 @@
         </div>
 
 
-
-        <!-- =================================
+        <!-- ==================================
              ACTIVITY
-        ================================== -->
+        =================================== -->
 
         <div
             class="card activity-card"
@@ -679,7 +677,8 @@
                     </h2>
 
                     <p>
-                        Your latest CampusSkillSwap activity.
+                        Your latest CampusSkillSwap
+                        activity.
                     </p>
 
                 </div>
@@ -706,13 +705,62 @@
 
         </div>
 
+
+        <!-- ==================================
+             RECEIVED EXCHANGE REQUESTS
+        =================================== -->
+
+        <div
+            class="card exchange-requests-card"
+            id="exchangeRequests"
+        >
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Received Exchange Requests
+                    </h2>
+
+                    <p>
+                        Students who want to exchange
+                        skills with you.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div id="exchangeRequestsContainer">
+
+                <div class="empty-activity">
+
+                    <div class="activity-icon">
+                        🔄
+                    </div>
+
+                    <h3>
+                        Loading requests...
+                    </h3>
+
+                    <p>
+                        Please wait.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </section>
 
 
-
-    <!-- =====================================
+    <!-- ======================================
          ADD SKILL MODAL
-    ====================================== -->
+    ======================================= -->
 
     <div
         class="modal"
@@ -740,7 +788,7 @@
             <form id="addSkillForm">
 
 
-                <label>
+                <label for="skillName">
                     Skill Name
                 </label>
 
@@ -752,7 +800,7 @@
                 >
 
 
-                <label>
+                <label for="skillDescription">
                     Description
                 </label>
 
@@ -763,7 +811,7 @@
                 ></textarea>
 
 
-                <label>
+                <label for="skillCategory">
                     Category
                 </label>
 
@@ -775,7 +823,7 @@
                 >
 
 
-                <label>
+                <label for="skillLevel">
                     Level
                 </label>
 
@@ -820,10 +868,9 @@
     </div>
 
 
-
-    <!-- =====================================
+    <!-- ======================================
          EXCHANGE MODAL
-    ====================================== -->
+    ======================================= -->
 
     <div
         class="modal"
@@ -851,7 +898,7 @@
             <form id="exchangeForm">
 
 
-                <label>
+                <label for="receiverId">
                     Receiver Student ID
                 </label>
 
@@ -863,7 +910,7 @@
                 >
 
 
-                <label>
+                <label for="exchangeSkillId">
                     Skill ID
                 </label>
 
@@ -894,46 +941,13 @@
         </div>
 
     </div>
-<!-- =====================================
-     RECEIVED EXCHANGE REQUESTS
-====================================== -->
 
-<div class="card exchange-requests-card" id="exchangeRequests">
-
-    <div class="card-header">
-
-        <div>
-            <h2>Received Exchange Requests</h2>
-
-            <p>
-                Students who want to exchange skills with you.
-            </p>
-        </div>
-
-    </div>
-
-    <div id="exchangeRequestsContainer">
-
-        <div class="empty-activity">
-            <div class="activity-icon">
-                🔄
-            </div>
-
-            <h3>Loading requests...</h3>
-
-            <p>
-                Please wait.
-            </p>
-        </div>
-
-    </div>
-
-</div>
 </main>
 
 
-
-<!-- JAVASCRIPT -->
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
 
 <script src="../js/dashboard.js"></script>
 

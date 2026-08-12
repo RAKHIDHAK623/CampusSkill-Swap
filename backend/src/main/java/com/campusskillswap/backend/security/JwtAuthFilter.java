@@ -35,37 +35,55 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader =
+                request.getHeader("Authorization");
 
         System.out.println("======================================");
-        System.out.println("REQUEST: " + request.getMethod()
-                + " " + request.getRequestURI());
-        System.out.println("AUTH HEADER PRESENT: "
-                + (authHeader != null));
+        System.out.println(
+                "REQUEST: "
+                        + request.getMethod()
+                        + " "
+                        + request.getRequestURI()
+        );
+
+        System.out.println(
+                "AUTH HEADER PRESENT: "
+                        + (authHeader != null)
+        );
 
         String email = null;
 
         // ==========================================
-        // CHECK JWT HEADER
+        // CHECK JWT
         // ==========================================
 
-        if (authHeader != null &&
-                authHeader.startsWith("Bearer ")) {
+        if (authHeader != null
+                && authHeader.startsWith("Bearer ")) {
 
-            String token = authHeader.substring(7);
+            String token =
+                    authHeader.substring(7);
 
             try {
 
-                email = jwtService.extractEmail(token);
+                email =
+                        jwtService.extractEmail(token);
+
+                String role =
+                        jwtService.extractRole(token);
 
                 System.out.println(
                         "JWT EMAIL: " + email
                 );
 
+                System.out.println(
+                        "JWT ROLE: " + role
+                );
+
             } catch (Exception e) {
 
                 System.out.println(
-                        "JWT TOKEN ERROR: " + e.getMessage()
+                        "JWT TOKEN ERROR: "
+                                + e.getMessage()
                 );
             }
         }
@@ -74,8 +92,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // AUTHENTICATE USER
         // ==========================================
 
-        if (email != null &&
-                SecurityContextHolder
+        if (email != null
+                && SecurityContextHolder
                         .getContext()
                         .getAuthentication() == null) {
 
@@ -99,7 +117,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder
                         .getContext()
-                        .setAuthentication(authentication);
+                        .setAuthentication(
+                                authentication
+                        );
 
                 System.out.println(
                         "JWT AUTHENTICATION SUCCESS: "
@@ -121,7 +141,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         // ==========================================
-        // FINAL SECURITY CONTEXT
+        // SECURITY CONTEXT
         // ==========================================
 
         System.out.println(
@@ -131,7 +151,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 .getAuthentication()
         );
 
-        System.out.println("======================================");
+        System.out.println(
+                "======================================"
+        );
 
         filterChain.doFilter(request, response);
     }
