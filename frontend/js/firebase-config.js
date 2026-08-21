@@ -18,15 +18,8 @@ const firebaseConfig = {
     measurementId: "G-DFKTCZPCJE"
 };
 
-const app =
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const auth =
-getAuth(app);
+export const auth = getAuth(app);
 
-// Make Firebase Auth available globally
-window.firebaseAuth = auth;
-
-console.log(
-"Firebase initialized successfully"
-);
+console.log("Firebase initialized successfully");

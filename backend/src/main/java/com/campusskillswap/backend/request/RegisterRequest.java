@@ -1,3 +1,4 @@
+
 package com.campusskillswap.backend.request;
 
 public class RegisterRequest {
@@ -5,6 +6,10 @@ public class RegisterRequest {
     private String username;
     private String email;
     private String password;
+    private String role;
+
+    public RegisterRequest() {
+    }
 
     public String getUsername() {
         return username;
@@ -29,4 +34,13 @@ public class RegisterRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
+

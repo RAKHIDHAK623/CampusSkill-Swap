@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard | CampusSkillSwap</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/admin-dashboard.css"
+    >
+<link rel="icon" href="data:,">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+
+        <div class="logo">
+            CS
+        </div>
+
+        <div class="brand-text">
+
+            <h2>CampusSkillSwap</h2>
+
+            <span>
+                Admin Panel
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+        <a
+            href="#overview"
+            class="nav-item active"
+            data-section="overview"
+        >
+            <span>📊</span>
+            <span>Overview</span>
+        </a>
+
+
+        <a
+            href="#students"
+            class="nav-item"
+            data-section="students"
+        >
+            <span>👥</span>
+            <span>Students</span>
+        </a>
+
+
+        <a
+            href="#skills"
+            class="nav-item"
+            data-section="skills"
+        >
+            <span>📚</span>
+            <span>Skills</span>
+        </a>
+
+
+        <a
+            href="#exchanges"
+            class="nav-item"
+            data-section="exchanges"
+        >
+            <span>🔄</span>
+            <span>Exchanges</span>
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <button
+            type="button"
+            class="logout-btn"
+            id="logoutButton"
+        >
+
+            <span>🚪</span>
+
+            <span>
+                Logout
+            </span>
+
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="main-content">
+
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <button
+            type="button"
+            class="menu-btn"
+            id="menuButton"
+        >
+            ☰
+        </button>
+
+
+        <div class="topbar-title">
+
+            <h1>
+                Admin Dashboard
+            </h1>
+
+            <p>
+                Manage your CampusSkillSwap platform
+            </p>
+
+        </div>
+
+
+        <div class="admin-profile">
+
+            <div
+                class="avatar"
+                id="adminAvatar"
+            >
+                A
+            </div>
+
+            <div class="profile-info">
+
+                <strong id="adminName">
+                    Admin
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!--DASHBOARD -->
+
+    <section
+        class="dashboard-container"
+        id="overview"
+    >
+
+
+        <!-- WELCOME CARD -->
+
+        <div class="welcome-card">
+
+            <div class="welcome-content">
+
+                <span>
+                    Welcome back 👋
+                </span>
+
+                <h2>
+                    CampusSkillSwap Admin
+                </h2>
+
+                <p>
+                    Monitor students, skills and
+                    skill exchange activities.
+                </p>
+
+            </div>
+
+            <div class="welcome-icon">
+                🛡️
+            </div>
+
+        </div>
+
+
+        <!--STAT CARDS-->
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    👥
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Students
+                    </span>
+
+                    <strong id="totalStudents">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon purple">
+                    📚
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Skills
+                    </span>
+
+                    <strong id="totalSkills">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    🔄
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Exchanges
+                    </span>
+
+                    <strong id="totalExchanges">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon orange">
+                    ⭐
+                </div>
+
+                <div>
+
+                    <span>
+                        Platform Rating
+                    </span>
+
+                    <strong id="platformRating">
+                        0.0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!--QUICK MANAGEMENT-->
+
+        <div class="management-grid">
+
+
+            <!-- STUDENTS -->
+
+            <div
+                class="management-card"
+                id="students"
+            >
+
+                <div class="card-icon">
+                    👥
+                </div>
+
+                <h2>
+                    Manage Students
+                </h2>
+
+                <p>
+                    View all registered users
+                    and their roles.
+                </p>
+
+                <button
+                    type="button"
+                    id="studentsButton"
+                >
+                    View Students
+                </button>
+
+            </div>
+
+
+            <!-- SKILLS -->
+
+            <div
+                class="management-card"
+                id="skills"
+            >
+
+                <div class="card-icon">
+                    📚
+                </div>
+
+                <h2>
+                    Manage Skills
+                </h2>
+
+                <p>
+                    Review skills shared
+                    by students.
+                </p>
+
+                <button
+                    type="button"
+                    id="skillsButton"
+                >
+                    View Skills
+                </button>
+
+            </div>
+
+
+            <!-- EXCHANGES -->
+
+            <div
+                class="management-card"
+                id="exchanges"
+            >
+
+                <div class="card-icon">
+                    🔄
+                </div>
+
+                <h2>
+                    Manage Exchanges
+                </h2>
+
+                <p>
+                    Monitor skill exchange
+                    requests and status.
+                </p>
+
+                <button
+                    type="button"
+                    id="exchangesButton"
+                >
+                    View Exchanges
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!--DATA CARD-->
+
+        <div class="data-card">
+
+            <div class="data-header">
+
+                <div>
+
+                    <div class="data-title-row">
+
+                        <div>
+
+                            <h2 id="dataTitle">
+                                Admin Information
+                            </h2>
+
+                            <p id="dataSubtitle">
+                                Select an option above
+                                to view platform data.
+                            </p>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="refresh-btn"
+                            id="refreshButton"
+                            title="Refresh data"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DATA CONTAINER -->
+
+            <div id="adminDataContainer">
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        No data selected
+                    </h3>
+
+                    <p>
+                        Choose Students, Skills or
+                        Exchanges above.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script
+    src="../js/admin-dashboard.js"
+></script>
+
+</body>
+
+</html>

@@ -1,42 +1,94 @@
-// ==========================================
-// CAMPUS SKILLSWAP - DASHBOARD JS
-// ==========================================
+// ============================================================
+// CAMPUS SKILLSWAP - STUDENT DASHBOARD
+// COMPLETE VERSION
+// ============================================================
 
-// ==========================================
-// API
-// ==========================================
+
+// ============================================================
+// API CONFIG
+// ============================================================
 
 const API_BASE_URL = "http://localhost:8081";
 
-// ==========================================
-// AUTH
-// ==========================================
 
-const token = localStorage.getItem("token");
-const userEmail = localStorage.getItem("userEmail");
+// ============================================================
+// AUTH DATA
+// ============================================================
 
-// Get role saved during login
-const userRole =
-    localStorage.getItem("userRole") || "STUDENT";
+const token =
+    localStorage.getItem("token");
+
+const userEmail =
+    localStorage.getItem("userEmail");
+
+let userRole =
+    localStorage.getItem("role");
+
+userRole =
+    userRole
+        ? userRole.trim().toUpperCase()
+        : "STUDENT";
+
+// ============================================================
+// DEBUG
+// ============================================================
 
 console.log("=================================");
-console.log("DASHBOARD AUTH");
+console.log("CAMPUS SKILLSWAP STUDENT DASHBOARD");
 console.log("EMAIL:", userEmail);
 console.log("ROLE:", userRole);
 console.log("TOKEN PRESENT:", !!token);
 console.log("=================================");
 
+
+// ============================================================
+// AUTH CHECK
+// ============================================================
+
 if (!token) {
-    window.location.href = "login.html";
+
+    console.warn(
+        "No JWT token found."
+    );
+
+    window.location.replace(
+        "login.html"
+    );
+
+} else if (userRole === "ADMIN") {
+
+    console.log(
+        "Admin detected. Redirecting..."
+    );
+
+    window.location.replace(
+        "admin-dashboard.html"
+    );
+
 }
 
-// ==========================================
+
+// ============================================================
 // DOM READY
-// ==========================================
+// ============================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
+
+        if (!token) {
+            return;
+        }
+
+        if (userRole === "ADMIN") {
+            return;
+        }
+
+
+        console.log(
+            "Student dashboard initialized."
+        );
+
 
         loadDashboardUser();
 
@@ -46,39 +98,63 @@ document.addEventListener(
 
         setupSearch();
 
-        loadSkills();
+        setupNotifications();
 
         setupAddSkillForm();
 
         setupExchangeForm();
 
-        loadExchangeRequests();
+        setupProfileEdit();
+
+        setupModalClose();
+
+        loadDashboardData();
 
     }
 );
 
 
-// ==========================================
-// LOAD DASHBOARD USER
-// ==========================================
+// ============================================================
+// LOAD ALL DASHBOARD DATA
+// ============================================================
+
+async function loadDashboardData() {
+
+    await Promise.allSettled([
+        loadSkills(),
+        loadExchangeRequests()
+    ]);
+
+}
+
+
+// ============================================================
+// CURRENT USER
+// ============================================================
+
+function getCurrentUserId() {
+
+    const userId =
+        localStorage.getItem("userId");
+
+    if (userId) {
+        return userId;
+    }
+
+    return null;
+}
+
+
+// ============================================================
+// USER PROFILE
+// ============================================================
 
 function loadDashboardUser() {
 
-    console.log("Loading dashboard user...");
-
-    // ======================================
-    // EMAIL
-    // ======================================
-
     const email =
-        localStorage.getItem("userEmail");
-
-    console.log("User Email:", email);
-
-
-    // ======================================
-    // USERNAME
-    // ======================================
+        localStorage.getItem(
+            "userEmail"
+        );
 
     const username =
         email
@@ -86,262 +162,292 @@ function loadDashboardUser() {
             : "Student";
 
 
-    // ======================================
-    // ROLE
-    // ======================================
-
     const role =
-        localStorage.getItem("role") ||
-        localStorage.getItem("userRole") ||
-        "STUDENT";
+        (
+            localStorage.getItem("role") ||
+            "STUDENT"
+        )
+        .trim()
+        .toUpperCase();
 
-
-    console.log("User Role:", role);
-
-
-    // ======================================
-    // DISPLAY ROLE
-    // ======================================
 
     const displayRole =
-        role.charAt(0).toUpperCase() +
+        role.charAt(0) +
         role.slice(1).toLowerCase();
 
 
-    // ======================================
+    // ------------------------------------------
     // TOP USERNAME
-    // ======================================
+    // ------------------------------------------
 
     const topUsername =
-        document.getElementById("topUsername");
+        document.getElementById(
+            "topUsername"
+        );
 
     if (topUsername) {
-        topUsername.textContent = username;
+
+        topUsername.textContent =
+            username;
+
     }
 
 
-    // ======================================
-    // WELCOME USERNAME
-    // ======================================
+    // ------------------------------------------
+    // WELCOME
+    // ------------------------------------------
 
     const welcomeUsername =
-        document.getElementById("welcomeUsername");
+        document.getElementById(
+            "welcomeUsername"
+        );
 
     if (welcomeUsername) {
-        welcomeUsername.textContent = username;
+
+        welcomeUsername.textContent =
+            username;
+
     }
 
 
-    // ======================================
+    // ------------------------------------------
     // PROFILE USERNAME
-    // ======================================
+    // ------------------------------------------
 
     const profileUsername =
-        document.getElementById("profileUsername");
+        document.getElementById(
+            "profileUsername"
+        );
 
     if (profileUsername) {
-        profileUsername.textContent = username;
+
+        profileUsername.textContent =
+            username;
+
     }
 
 
-    // ======================================
+    // ------------------------------------------
     // PROFILE EMAIL
-    // ======================================
+    // ------------------------------------------
 
     const profileEmail =
-        document.getElementById("profileEmail");
+        document.getElementById(
+            "profileEmail"
+        );
 
     if (profileEmail) {
+
         profileEmail.textContent =
             email || "No email";
+
     }
 
 
-    // ======================================
+    // ------------------------------------------
     // DETAIL EMAIL
-    // ======================================
+    // ------------------------------------------
 
     const detailEmail =
-        document.getElementById("detailEmail");
+        document.getElementById(
+            "detailEmail"
+        );
 
     if (detailEmail) {
+
         detailEmail.textContent =
             email || "No email";
+
     }
 
 
-    // ======================================
-    // PROFILE ROLE
-    // ======================================
+    // ------------------------------------------
+    // ROLE
+    // ------------------------------------------
 
     const profileRole =
-        document.getElementById("profileRole");
+        document.getElementById(
+            "profileRole"
+        );
 
     if (profileRole) {
+
         profileRole.textContent =
             displayRole;
+
     }
 
-
-    // ======================================
-    // TOP ROLE
-    // ======================================
 
     const topRole =
-        document.getElementById("topRole");
+        document.getElementById(
+            "topRole"
+        );
 
     if (topRole) {
+
         topRole.textContent =
             displayRole;
+
     }
 
-
-    // ======================================
-    // ACCOUNT TYPE
-    // ======================================
 
     const accountType =
-        document.getElementById("accountType");
+        document.getElementById(
+            "accountType"
+        );
 
     if (accountType) {
+
         accountType.textContent =
             displayRole;
+
     }
 
 
-    // ======================================
+    // ------------------------------------------
     // AVATAR
-    // ======================================
+    // ------------------------------------------
 
     const firstLetter =
-        username.charAt(0).toUpperCase();
+        username
+            .charAt(0)
+            .toUpperCase();
 
 
     const avatarLetter =
-        document.getElementById("avatarLetter");
+        document.getElementById(
+            "avatarLetter"
+        );
 
     if (avatarLetter) {
+
         avatarLetter.textContent =
             firstLetter;
+
     }
 
 
     const profileLetter =
-        document.getElementById("profileLetter");
+        document.getElementById(
+            "profileLetter"
+        );
 
     if (profileLetter) {
+
         profileLetter.textContent =
             firstLetter;
-    }
-
-
-    // ======================================
-    // USER TYPE CLASS
-    // ======================================
-
-    if (role === "ADMIN") {
-
-        document.body.classList.add(
-            "admin-user"
-        );
-
-    } else {
-
-        document.body.classList.add(
-            "student-user"
-        );
 
     }
+
+
+    document.body.classList.add(
+        "student-user"
+    );
+
 }
 
-// ==========================================
+
+// ============================================================
+// API HELPER
+// ============================================================
+
+async function apiFetch(
+    endpoint,
+    options = {}
+) {
+
+    const headers = {
+        ...(options.headers || {}),
+        "Authorization":
+            "Bearer " + token
+    };
+
+
+    if (
+        !headers["Content-Type"] &&
+        options.method &&
+        options.method !== "GET"
+    ) {
+
+        headers["Content-Type"] =
+            "application/json";
+
+    }
+
+
+    const response =
+        await fetch(
+            API_BASE_URL + endpoint,
+            {
+                ...options,
+                headers
+            }
+        );
+
+    
+    // AUTH FAILURE
+    
+    if (
+        response.status === 401 ||
+        response.status === 403
+    ) {
+
+        console.error(
+            "Authentication failed:",
+            response.status
+        );
+
+        logout();
+
+        throw new Error(
+            "Authentication expired. Please login again."
+        );
+
+    }
+
+
+    return response;
+
+}
+
+
+
 // LOAD SKILLS
-// ==========================================
 
 async function loadSkills() {
 
-    const skillsContainer =
+    const container =
         document.getElementById(
             "skillsContainer"
         );
 
-    if (!skillsContainer) {
+
+    if (!container) {
         return;
     }
 
 
-    skillsContainer.innerHTML = `
-
-        <div class="skill-card loading-card">
-
-            <div class="skill-icon">
-                ⏳
-            </div>
-
-            <h3>
-                Loading skills...
-            </h3>
-
-            <p>
-                Please wait
-            </p>
-
-        </div>
-
-    `;
+    showSkillsLoading(
+        container
+    );
 
 
     try {
 
         const response =
-            await fetch(
-                API_BASE_URL +
-                "/api/skills",
-                {
-
-                    method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            "Bearer " + token,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
-                }
+            await apiFetch(
+                "/api/skills"
             );
-
-
-        console.log(
-            "Skills Status:",
-            response.status
-        );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            alert(
-                "Authentication failed. Please login again."
-            );
-
-            logout();
-
-            return;
-
-        }
 
 
         if (!response.ok) {
 
+            const text =
+                await response.text();
+
             throw new Error(
-                "Failed to load skills: " +
-                response.status
+                text ||
+                "Failed to load skills."
             );
 
         }
@@ -352,23 +458,25 @@ async function loadSkills() {
 
 
         console.log(
-            "Skills:",
+            "Skills received:",
             skills
         );
 
 
-        displaySkills(skills);
+        displaySkills(
+            skills
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Load Skills Error:",
+            "Skills Error:",
             error
         );
 
 
-        skillsContainer.innerHTML = `
+        container.innerHTML = `
 
             <div class="skill-card error-card">
 
@@ -381,7 +489,10 @@ async function loadSkills() {
                 </h3>
 
                 <p>
-                    Please check the backend.
+                    ${escapeHTML(
+                        error.message ||
+                        "Please check backend connection."
+                    )}
                 </p>
 
                 <button
@@ -400,19 +511,21 @@ async function loadSkills() {
 }
 
 
-// ==========================================
+
 // DISPLAY SKILLS
-// ==========================================
 
-function displaySkills(skills) {
 
-    const skillsContainer =
+function displaySkills(
+    skills
+) {
+
+    const container =
         document.getElementById(
             "skillsContainer"
         );
 
 
-    if (!skillsContainer) {
+    if (!container) {
         return;
     }
 
@@ -422,7 +535,7 @@ function displaySkills(skills) {
         skills.length === 0
     ) {
 
-        skillsContainer.innerHTML = `
+        container.innerHTML = `
 
             <div class="skill-card empty-card">
 
@@ -450,20 +563,59 @@ function displaySkills(skills) {
 
         `;
 
-
-        updateSkillCount(0);
+        updateSkillCount(
+            0
+        );
 
         return;
-
     }
 
 
+    
+    // CURRENT USER
+    
+
+    const currentUserId =
+        getCurrentUserId();
+
+
+    // MY SKILLS
+    
+    const mySkills =
+        skills.filter(
+            function (skill) {
+
+                const owner =
+                    skill.user ||
+                    skill.owner ||
+                    {};
+
+
+                if (!currentUserId) {
+                    return false;
+                }
+
+
+                return String(
+                    owner.id
+                ) === String(
+                    currentUserId
+                );
+
+            }
+        );
+
+
     updateSkillCount(
-        skills.length
+        mySkills.length
     );
 
 
-    skillsContainer.innerHTML = "";
+    
+    // DISPLAY ALL SKILLS
+   
+
+    container.innerHTML = "";
 
 
     skills.forEach(
@@ -489,63 +641,93 @@ function displaySkills(skills) {
                 "BEGINNER";
 
 
-            const description =
-                skill.description ||
-                "No description available.";
-
-
             const name =
                 skill.name ||
                 "Unnamed Skill";
 
 
+            const description =
+                skill.description ||
+                "No description available.";
+
+
             const skillId =
-                skill.id ||
-                "";
+                skill.id || "";
+
+
+            const owner =
+                skill.user ||
+                skill.owner ||
+                {};
 
 
             const receiverId =
-                skill.user &&
-                skill.user.id
-                    ? skill.user.id
-                    : "";
+                owner.id || "";
 
 
             const username =
-                skill.user &&
-                skill.user.username
-                    ? skill.user.username
-                    : "Student";
+                owner.username ||
+                owner.email ||
+                "Student";
 
 
-            const icon =
-                getSkillIcon(category);
+            const isMine =
+                currentUserId &&
+                String(
+                    owner.id
+                ) === String(
+                    currentUserId
+                );
 
 
             card.innerHTML = `
 
                 <div class="skill-icon">
-                    ${icon}
+
+                    ${getSkillIcon(
+                        category
+                    )}
+
                 </div>
 
+
                 <h3>
-                    ${escapeHTML(name)}
+
+                    ${escapeHTML(
+                        name
+                    )}
+
                 </h3>
 
+
                 <p>
-                    ${escapeHTML(description)}
+
+                    ${escapeHTML(
+                        description
+                    )}
+
                 </p>
+
 
                 <div class="skill-meta">
 
                     <span>
+
                         📂
-                        ${escapeHTML(category)}
+                        ${escapeHTML(
+                            category
+                        )}
+
                     </span>
 
-                    <span>
+
+                    <span class="skill-level">
+
                         🎯
-                        ${escapeHTML(level)}
+                        ${escapeHTML(
+                            level
+                        )}
+
                     </span>
 
                 </div>
@@ -554,34 +736,57 @@ function displaySkills(skills) {
                 <div class="skill-footer">
 
                     <span>
+
                         👤
-                        ${escapeHTML(username)}
+                        ${escapeHTML(
+                            username
+                        )}
+
                     </span>
 
 
-                    <button
-                        type="button"
-                        class="explore-btn"
-                        data-skill-id="${skillId}"
-                        data-receiver-id="${receiverId}"
-                    >
-                        Explore
-                    </button>
+                    ${
+                        isMine
+
+                        ?
+
+                        `
+                            <span
+                                class="my-skill-badge"
+                            >
+                                My Skill
+                            </span>
+                        `
+
+                        :
+
+                        `
+                            <button
+                                type="button"
+                                class="explore-btn"
+                            >
+                                Exchange
+                            </button>
+                        `
+                    }
 
                 </div>
 
             `;
 
 
-            const exploreButton =
+            
+            // EXCHANGE BUTTON
+            
+            const button =
                 card.querySelector(
                     ".explore-btn"
                 );
 
 
-            if (exploreButton) {
+            if (button) {
 
-                exploreButton.addEventListener(
+                button.addEventListener(
                     "click",
                     function () {
 
@@ -596,7 +801,7 @@ function displaySkills(skills) {
             }
 
 
-            skillsContainer.appendChild(
+            container.appendChild(
                 card
             );
 
@@ -606,21 +811,23 @@ function displaySkills(skills) {
 }
 
 
-// ==========================================
-// UPDATE SKILL COUNT
-// ==========================================
 
-function updateSkillCount(count) {
+// SKILL COUNT
 
-    const countElement =
+
+function updateSkillCount(
+    count
+) {
+
+    const element =
         document.getElementById(
             "mySkillsCount"
         );
 
 
-    if (countElement) {
+    if (element) {
 
-        countElement.textContent =
+        element.textContent =
             count;
 
     }
@@ -628,19 +835,18 @@ function updateSkillCount(count) {
 }
 
 
-// ==========================================
+
 // SKILL ICON
-// ==========================================
 
-function getSkillIcon(category) {
-
-    if (!category) {
-        return "📚";
-    }
-
+function getSkillIcon(
+    category
+) {
 
     const value =
-        category.toLowerCase();
+        String(
+            category || ""
+        )
+        .toLowerCase();
 
 
     if (
@@ -713,18 +919,35 @@ function getSkillIcon(category) {
     }
 
 
+    if (
+        value.includes("language") ||
+        value.includes("english")
+    ) {
+
+        return "🌐";
+
+    }
+
+
+    if (
+        value.includes("marketing")
+    ) {
+
+        return "📈";
+
+    }
+
+
     return "📚";
 
 }
 
 
-// ==========================================
 // MOBILE MENU
-// ==========================================
 
 function setupMobileMenu() {
 
-    const menuButton =
+    const button =
         document.getElementById(
             "menuButton"
         );
@@ -737,7 +960,7 @@ function setupMobileMenu() {
 
 
     if (
-        !menuButton ||
+        !button ||
         !sidebar
     ) {
 
@@ -746,7 +969,7 @@ function setupMobileMenu() {
     }
 
 
-    menuButton.addEventListener(
+    button.addEventListener(
         "click",
         function () {
 
@@ -760,26 +983,26 @@ function setupMobileMenu() {
 }
 
 
-// ==========================================
+
 // NAVIGATION
-// ==========================================
+
 
 function setupNavigation() {
 
-    const navItems =
+    const items =
         document.querySelectorAll(
             ".nav-item"
         );
 
 
-    navItems.forEach(
+    items.forEach(
         function (item) {
 
             item.addEventListener(
                 "click",
                 function () {
 
-                    navItems.forEach(
+                    items.forEach(
                         function (nav) {
 
                             nav.classList.remove(
@@ -794,68 +1017,18 @@ function setupNavigation() {
                         "active"
                     );
 
-                }
-            );
 
-        }
-    );
-
-}
+                    const sidebar =
+                        document.getElementById(
+                            "sidebar"
+                        );
 
 
-// ==========================================
-// SEARCH
-// ==========================================
+                    if (sidebar) {
 
-function setupSearch() {
-
-    const searchInput =
-        document.getElementById(
-            "searchInput"
-        );
-
-
-    if (!searchInput) {
-        return;
-    }
-
-
-    searchInput.addEventListener(
-        "input",
-        function () {
-
-            const searchValue =
-                searchInput.value
-                    .toLowerCase()
-                    .trim();
-
-
-            const cards =
-                document.querySelectorAll(
-                    "#skillsContainer .skill-card"
-                );
-
-
-            cards.forEach(
-                function (card) {
-
-                    const text =
-                        card.textContent
-                            .toLowerCase();
-
-
-                    if (
-                        searchValue === "" ||
-                        text.includes(searchValue)
-                    ) {
-
-                        card.style.display =
-                            "";
-
-                    } else {
-
-                        card.style.display =
-                            "none";
+                        sidebar.classList.remove(
+                            "open"
+                        );
 
                     }
 
@@ -868,9 +1041,78 @@ function setupSearch() {
 }
 
 
-// ==========================================
+// SEARCH
+
+
+function setupSearch() {
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    if (!searchInput) {
+        return;
+    }
+
+    let searchTimer;
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            const keyword =
+                searchInput.value.trim();
+
+            clearTimeout(searchTimer);
+
+            searchTimer =
+                setTimeout(
+                    async function () {
+
+                        if (!keyword) {
+                            loadSkills();
+                            return;
+                        }
+
+                        try {
+
+                            const response =
+                                await apiFetch(
+                                    "/api/skills/search?name=" +
+                                    encodeURIComponent(keyword)
+                                );
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    "Search failed: " +
+                                    response.status
+                                );
+                            }
+
+                            const skills =
+                                await response.json();
+
+                            displaySkills(skills);
+
+                        } catch (error) {
+
+                            console.error(
+                                "Search Error:",
+                                error
+                            );
+
+                        }
+
+                    },
+                    300
+                );
+        }
+    );
+}
+
+
+
 // ADD SKILL MODAL
-// ==========================================
+
 
 function openAddSkillModal() {
 
@@ -910,9 +1152,9 @@ function closeAddSkillModal() {
 }
 
 
-// ==========================================
+
 // ADD SKILL FORM
-// ==========================================
+
 
 function setupAddSkillForm() {
 
@@ -940,81 +1182,91 @@ function setupAddSkillForm() {
                 );
 
 
-            const name =
-                document.getElementById(
-                    "skillName"
-                ).value.trim();
-
-
-            const description =
-                document.getElementById(
-                    "skillDescription"
-                ).value.trim();
-
-
-            const category =
-                document.getElementById(
-                    "skillCategory"
-                ).value.trim();
-
-
-            const level =
-                document.getElementById(
-                    "skillLevel"
-                ).value;
-
-
             const message =
                 document.getElementById(
                     "skillMessage"
                 );
 
 
-            button.disabled = true;
+            const name =
+                document.getElementById(
+                    "skillName"
+                )
+                .value
+                .trim();
 
-            button.textContent =
-                "Adding...";
+
+            const description =
+                document.getElementById(
+                    "skillDescription"
+                )
+                .value
+                .trim();
 
 
-            message.textContent =
-                "";
+            const category =
+                document.getElementById(
+                    "skillCategory"
+                )
+                .value
+                .trim();
+
+
+            const level =
+                document.getElementById(
+                    "skillLevel"
+                )
+                .value;
+
+
+            if (
+                !name ||
+                !description ||
+                !category ||
+                !level
+            ) {
+
+                showMessage(
+                    message,
+                    "Please fill all fields.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Adding...";
+
+            }
 
 
             try {
 
                 const response =
-                    await fetch(
-                        API_BASE_URL +
+                    await apiFetch(
                         "/api/skills",
                         {
 
-                            method: "POST",
-
-                            headers: {
-
-                                "Authorization":
-                                    "Bearer " +
-                                    token,
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
+                            method:
+                                "POST",
 
                             body:
                                 JSON.stringify({
 
-                                    name:
-                                        name,
+                                    name,
 
-                                    description:
-                                        description,
+                                    description,
 
-                                    category:
-                                        category,
+                                    category,
 
-                                    level:
-                                        level
+                                    level
 
                                 })
 
@@ -1022,54 +1274,25 @@ function setupAddSkillForm() {
                     );
 
 
-                const responseText =
+                const text =
                     await response.text();
-
-
-                console.log(
-                    "Add Skill Status:",
-                    response.status
-                );
-
-
-                console.log(
-                    "Add Skill Response:",
-                    responseText
-                );
-
-
-                if (
-                    response.status === 401 ||
-                    response.status === 403
-                ) {
-
-                    alert(
-                        "Authentication failed. Please login again."
-                    );
-
-                    logout();
-
-                    return;
-
-                }
 
 
                 if (!response.ok) {
 
                     throw new Error(
-                        responseText ||
+                        text ||
                         "Failed to add skill."
                     );
 
                 }
 
 
-                message.textContent =
-                    "Skill added successfully!";
-
-
-                message.className =
-                    "modal-message success";
+                showMessage(
+                    message,
+                    "Skill added successfully! ✅",
+                    "success"
+                );
 
 
                 form.reset();
@@ -1079,14 +1302,7 @@ function setupAddSkillForm() {
 
 
                 setTimeout(
-                    function () {
-
-                        closeAddSkillModal();
-
-                        message.textContent =
-                            "";
-
-                    },
+                    closeAddSkillModal,
                     800
                 );
 
@@ -1099,21 +1315,24 @@ function setupAddSkillForm() {
                 );
 
 
-                message.textContent =
-                    error.message;
-
-
-                message.className =
-                    "modal-message error";
+                showMessage(
+                    message,
+                    error.message,
+                    "error"
+                );
 
 
             } finally {
 
-                button.disabled =
-                    false;
+                if (button) {
 
-                button.textContent =
-                    "Add Skill";
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Add Skill";
+
+                }
 
             }
 
@@ -1123,32 +1342,9 @@ function setupAddSkillForm() {
 }
 
 
-// ==========================================
-// SCROLL TO SKILLS
-// ==========================================
 
-function scrollToSkills() {
-
-    const section =
-        document.getElementById(
-            "discover"
-        );
-
-
-    if (section) {
-
-        section.scrollIntoView({
-            behavior: "smooth"
-        });
-
-    }
-
-}
-
-
-// ==========================================
 // EXCHANGE MODAL
-// ==========================================
+
 
 function openExchangeModal() {
 
@@ -1188,26 +1384,13 @@ function closeExchangeModal() {
 }
 
 
-// ==========================================
+
 // START EXCHANGE
-// ==========================================
 
 function startSkillExchange(
     skillId,
     receiverId
 ) {
-
-    console.log(
-        "Selected Skill ID:",
-        skillId
-    );
-
-
-    console.log(
-        "Receiver ID:",
-        receiverId
-    );
-
 
     if (!skillId) {
 
@@ -1223,7 +1406,7 @@ function startSkillExchange(
     if (!receiverId) {
 
         alert(
-            "This skill does not have a valid student owner."
+            "This skill does not have a valid owner."
         );
 
         return;
@@ -1231,7 +1414,7 @@ function startSkillExchange(
     }
 
 
-    const exchangeSkillId =
+    const skillInput =
         document.getElementById(
             "exchangeSkillId"
         );
@@ -1244,12 +1427,12 @@ function startSkillExchange(
 
 
     if (
-        !exchangeSkillId ||
+        !skillInput ||
         !receiverInput
     ) {
 
         alert(
-            "Exchange form is missing from the page."
+            "Exchange form is missing."
         );
 
         return;
@@ -1257,7 +1440,7 @@ function startSkillExchange(
     }
 
 
-    exchangeSkillId.value =
+    skillInput.value =
         skillId;
 
 
@@ -1270,9 +1453,9 @@ function startSkillExchange(
 }
 
 
-// ==========================================
+
 // EXCHANGE FORM
-// ==========================================
+
 
 function setupExchangeForm() {
 
@@ -1283,13 +1466,7 @@ function setupExchangeForm() {
 
 
     if (!form) {
-
-        console.warn(
-            "Exchange form not found."
-        );
-
         return;
-
     }
 
 
@@ -1312,40 +1489,20 @@ function setupExchangeForm() {
                 );
 
 
-            const receiverInput =
-                document.getElementById(
-                    "receiverId"
-                );
-
-
-            const skillInput =
-                document.getElementById(
-                    "exchangeSkillId"
-                );
-
-
             const receiverId =
                 Number(
-                    receiverInput.value
+                    document.getElementById(
+                        "receiverId"
+                    ).value
                 );
 
 
             const skillId =
                 Number(
-                    skillInput.value
+                    document.getElementById(
+                        "exchangeSkillId"
+                    ).value
                 );
-
-
-            console.log(
-                "Sending Exchange:",
-                {
-                    receiverId:
-                        receiverId,
-
-                    skillId:
-                        skillId
-                }
-            );
 
 
             if (
@@ -1353,58 +1510,44 @@ function setupExchangeForm() {
                 !skillId
             ) {
 
-                message.textContent =
-                    "Receiver ID and Skill ID are required.";
-
-                message.className =
-                    "modal-message error";
+                showMessage(
+                    message,
+                    "Invalid exchange information.",
+                    "error"
+                );
 
                 return;
 
             }
 
 
-            button.disabled =
-                true;
+            if (button) {
 
+                button.disabled =
+                    true;
 
-            button.textContent =
-                "Sending...";
+                button.textContent =
+                    "Sending...";
 
-
-            message.textContent =
-                "";
+            }
 
 
             try {
 
                 const response =
-                    await fetch(
-                        API_BASE_URL +
+                    await apiFetch(
                         "/api/exchange",
                         {
 
-                            method: "POST",
-
-                            headers: {
-
-                                "Authorization":
-                                    "Bearer " +
-                                    token,
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
+                            method:
+                                "POST",
 
                             body:
                                 JSON.stringify({
 
-                                    receiverId:
-                                        receiverId,
+                                    receiverId,
 
-                                    skillId:
-                                        skillId
+                                    skillId
 
                                 })
 
@@ -1412,50 +1555,25 @@ function setupExchangeForm() {
                     );
 
 
-                const responseText =
+                const text =
                     await response.text();
-
-
-                console.log(
-                    "Exchange Status:",
-                    response.status
-                );
-
-
-                console.log(
-                    "Exchange Response:",
-                    responseText
-                );
-
-
-                if (
-                    response.status === 401 ||
-                    response.status === 403
-                ) {
-
-                    throw new Error(
-                        "Authentication failed. Token invalid or expired."
-                    );
-
-                }
 
 
                 if (!response.ok) {
 
                     throw new Error(
-                        responseText ||
+                        text ||
                         "Failed to send exchange request."
                     );
 
                 }
 
 
-                message.textContent =
-                    "Exchange request sent successfully!";
-
-
-                message.className =
-                    "modal-message success";
+                showMessage(
+                    message,
+                    "Exchange request sent successfully! ✅",
+                    "success"
+                );
 
 
                 form.reset();
@@ -1465,15 +1583,8 @@ function setupExchangeForm() {
 
 
                 setTimeout(
-                    function () {
-
-                        closeExchangeModal();
-
-                        message.textContent =
-                            "";
-
-                    },
-                    1200
+                    closeExchangeModal,
+                    1000
                 );
 
 
@@ -1485,20 +1596,24 @@ function setupExchangeForm() {
                 );
 
 
-                message.textContent =
-                    error.message;
+                showMessage(
+                    message,
+                    error.message,
+                    "error"
+                );
 
-
-                message.className =
-                    "modal-message error";
 
             } finally {
 
-                button.disabled =
-                    false;
+                if (button) {
 
-                button.textContent =
-                    "Send Exchange Request";
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Send Exchange Request";
+
+                }
 
             }
 
@@ -1508,9 +1623,8 @@ function setupExchangeForm() {
 }
 
 
-// ==========================================
 // LOAD EXCHANGE REQUESTS
-// ==========================================
+
 
 async function loadExchangeRequests() {
 
@@ -1525,54 +1639,43 @@ async function loadExchangeRequests() {
     }
 
 
+    container.innerHTML = `
+
+        <div class="empty-activity">
+
+            <div class="activity-icon">
+                ⏳
+            </div>
+
+            <h3>
+                Loading requests...
+            </h3>
+
+            <p>
+                Please wait.
+            </p>
+
+        </div>
+
+    `;
+
+
     try {
 
         const response =
-            await fetch(
-                API_BASE_URL +
-                "/api/exchange",
-                {
-
-                    method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            "Bearer " + token,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
-                }
+            await apiFetch(
+                "/api/exchange"
             );
-
-
-        console.log(
-            "Exchange GET Status:",
-            response.status
-        );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            console.error(
-                "Authentication failed"
-            );
-
-            return;
-
-        }
 
 
         if (!response.ok) {
 
+            const text =
+                await response.text();
+
             throw new Error(
-                "Failed to load exchange requests"
+                text ||
+                "Failed to load exchanges."
             );
 
         }
@@ -1582,62 +1685,139 @@ async function loadExchangeRequests() {
             await response.json();
 
 
+        const list =
+            Array.isArray(requests)
+                ? requests
+                : [];
+
+
         console.log(
-            "Received Exchange Requests:",
-            requests
+            "Exchange data:",
+            list
         );
 
 
         updateExchangeCount(
-            Array.isArray(requests)
-                ? requests.length
-                : 0
+            list
         );
 
 
-        if (
-            !Array.isArray(requests) ||
-            requests.length === 0
-        ) {
+        updateConnectionCount(
+            list
+        );
 
-            container.innerHTML = `
 
-                <div class="empty-activity">
+        updateRating(
+            list
+        );
 
-                    <div class="activity-icon">
-                        📭
-                    </div>
 
-                    <h3>
-                        No Exchange Requests
-                    </h3>
+        displayRecentActivity(
+            list
+        );
 
-                    <p>
-                        You don't have any
-                        pending exchange requests.
-                    </p>
 
+        displayExchangeRequests(
+            list,
+            container
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Exchange Request Error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="empty-activity">
+
+                <div class="activity-icon">
+                    ⚠️
                 </div>
 
-            `;
+                <h3>
+                    Unable to load requests
+                </h3>
 
-            return;
+                <p>
+                    ${escapeHTML(
+                        error.message
+                    )}
+                </p>
 
-        }
+            </div>
+
+        `;
+
+    }
+
+}
 
 
-        container.innerHTML = "";
+
+// DISPLAY EXCHANGE REQUESTS
+
+function displayExchangeRequests(
+    list,
+    container
+) {
+
+    if (
+        !Array.isArray(list) ||
+        list.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="empty-activity">
+
+                <div class="activity-icon">
+                    📭
+                </div>
+
+                <h3>
+                    No Exchange Requests
+                </h3>
+
+                <p>
+                    You don't have any exchange requests yet.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
 
 
-        requests.forEach(
+    container.innerHTML = "";
+
+
+    list
+        .slice()
+        .reverse()
+        .forEach(
             function (request) {
 
                 const sender =
-                    request.sender || {};
+                    request.sender ||
+                    {};
+
+
+                const receiver =
+                    request.receiver ||
+                    {};
 
 
                 const skill =
-                    request.skill || {};
+                    request.skill ||
+                    {};
 
 
                 const senderName =
@@ -1652,8 +1832,11 @@ async function loadExchangeRequests() {
 
 
                 const status =
-                    request.status ||
-                    "PENDING";
+                    String(
+                        request.status ||
+                        "PENDING"
+                    )
+                    .toUpperCase();
 
 
                 const card =
@@ -1664,6 +1847,71 @@ async function loadExchangeRequests() {
 
                 card.className =
                     "exchange-request";
+
+
+                let actions = "";
+
+
+                
+                // PENDING
+                
+
+                if (
+                    status === "PENDING"
+                ) {
+
+                    actions = `
+
+                        <div class="exchange-actions">
+
+                            <button
+                                type="button"
+                                class="accept-btn"
+                                onclick="acceptExchangeRequest(${request.id})"
+                            >
+                                ✓ Accept
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="reject-btn"
+                                onclick="rejectExchangeRequest(${request.id})"
+                            >
+                                ✕ Reject
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                // COMPLETED
+
+                if (
+                    status === "COMPLETED" ||
+                    status === "ACCEPTED"
+                ) {
+
+                    actions = `
+
+                        <div class="exchange-actions">
+
+                            <button
+                                type="button"
+                                class="rate-btn"
+                                onclick="openRatingModal(${request.id})"
+                            >
+                                ⭐ Rate
+                            </button>
+
+                        </div>
+
+                    `;
+
+                }
 
 
                 card.innerHTML = `
@@ -1704,9 +1952,14 @@ async function loadExchangeRequests() {
 
 
                             <span
-                                class="exchange-status ${status.toLowerCase()}"
+                                class="
+                                    exchange-status
+                                    ${status.toLowerCase()}
+                                "
                             >
-                                ${escapeHTML(status)}
+                                ${escapeHTML(
+                                    status
+                                )}
                             </span>
 
                         </div>
@@ -1714,40 +1967,7 @@ async function loadExchangeRequests() {
                     </div>
 
 
-                    ${
-                        status === "PENDING"
-                        ?
-
-                        `
-
-                        <div class="exchange-actions">
-
-                            <button
-                                type="button"
-                                class="accept-btn"
-                                onclick="acceptExchangeRequest(${request.id})"
-                            >
-                                ✓ Accept
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="reject-btn"
-                                onclick="rejectExchangeRequest(${request.id})"
-                            >
-                                ✕ Reject
-                            </button>
-
-                        </div>
-
-                        `
-
-                        :
-
-                        ""
-
-                    }
+                    ${actions}
 
                 `;
 
@@ -1759,52 +1979,14 @@ async function loadExchangeRequests() {
             }
         );
 
-
-    } catch (error) {
-
-        console.error(
-            "Exchange Request Error:",
-            error
-        );
-
-
-        container.innerHTML = `
-
-            <div class="empty-activity">
-
-                <div class="activity-icon">
-                    ⚠️
-                </div>
-
-                <h3>
-                    Unable to load requests
-                </h3>
-
-                <p>
-                    Please try again.
-                </p>
-
-                <button
-                    type="button"
-                    onclick="loadExchangeRequests()"
-                >
-                    Try Again
-                </button>
-
-            </div>
-
-        `;
-
-    }
-
 }
 
 
-// ==========================================
-// ACCEPT EXCHANGE REQUEST
-// ==========================================
+// ACCEPT EXCHANGE
 
-async function acceptExchangeRequest(id) {
+async function acceptExchangeRequest(
+    id
+) {
 
     if (!id) {
         return;
@@ -1814,63 +1996,21 @@ async function acceptExchangeRequest(id) {
     try {
 
         const response =
-            await fetch(
-                API_BASE_URL +
-                "/api/exchange/" +
-                id +
-                "/accept",
+            await apiFetch(
+                `/api/exchange/${id}/accept`,
                 {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Authorization":
-                            "Bearer " + token,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
+                    method: "PUT"
                 }
             );
 
 
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "Accept Status:",
-            response.status
-        );
-
-
-        console.log(
-            "Accept Response:",
-            responseText
-        );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            alert(
-                "Authentication failed. Please login again."
-            );
-
-            return;
-
-        }
-
-
         if (!response.ok) {
 
+            const text =
+                await response.text();
+
             throw new Error(
-                responseText ||
+                text ||
                 "Unable to accept request."
             );
 
@@ -1888,7 +2028,7 @@ async function acceptExchangeRequest(id) {
     } catch (error) {
 
         console.error(
-            "Accept Exchange Error:",
+            "Accept Error:",
             error
         );
 
@@ -1902,11 +2042,13 @@ async function acceptExchangeRequest(id) {
 }
 
 
-// ==========================================
-// REJECT EXCHANGE REQUEST
-// ==========================================
 
-async function rejectExchangeRequest(id) {
+// REJECT EXCHANGE
+
+
+async function rejectExchangeRequest(
+    id
+) {
 
     if (!id) {
         return;
@@ -1916,63 +2058,21 @@ async function rejectExchangeRequest(id) {
     try {
 
         const response =
-            await fetch(
-                API_BASE_URL +
-                "/api/exchange/" +
-                id +
-                "/reject",
+            await apiFetch(
+                `/api/exchange/${id}/reject`,
                 {
-
-                    method: "PUT",
-
-                    headers: {
-
-                        "Authorization":
-                            "Bearer " + token,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
+                    method: "PUT"
                 }
             );
 
 
-        const responseText =
-            await response.text();
-
-
-        console.log(
-            "Reject Status:",
-            response.status
-        );
-
-
-        console.log(
-            "Reject Response:",
-            responseText
-        );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            alert(
-                "Authentication failed. Please login again."
-            );
-
-            return;
-
-        }
-
-
         if (!response.ok) {
 
+            const text =
+                await response.text();
+
             throw new Error(
-                responseText ||
+                text ||
                 "Unable to reject request."
             );
 
@@ -1990,7 +2090,7 @@ async function rejectExchangeRequest(id) {
     } catch (error) {
 
         console.error(
-            "Reject Exchange Error:",
+            "Reject Error:",
             error
         );
 
@@ -2004,36 +2104,768 @@ async function rejectExchangeRequest(id) {
 }
 
 
-// ==========================================
-// UPDATE EXCHANGE COUNT
-// ==========================================
+// EXCHANGE COUNT
 
-function updateExchangeCount(count) {
+function updateExchangeCount(
+    exchanges
+) {
 
-    const exchangeCount =
+    const element =
         document.getElementById(
             "exchangeCount"
         );
 
 
-    if (exchangeCount) {
+    if (!element) {
+        return;
+    }
 
-        exchangeCount.textContent =
-            count;
+
+    if (
+        !Array.isArray(exchanges)
+    ) {
+
+        element.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    const count =
+        exchanges.filter(
+            function (exchange) {
+
+                const status =
+                    String(
+                        exchange.status ||
+                        ""
+                    )
+                    .toUpperCase();
+
+
+                return (
+                    status === "ACCEPTED" ||
+                    status === "COMPLETED" ||
+                    status === "ACTIVE"
+                );
+
+            }
+        ).length;
+
+
+    element.textContent =
+        count;
+
+}
+
+
+// CONNECTION COUNT
+
+
+function updateConnectionCount(
+    exchanges
+) {
+
+    const element =
+        document.getElementById(
+            "connectionCount"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(exchanges)
+    ) {
+
+        element.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    const currentUserId =
+        getCurrentUserId();
+
+
+    const connectedUsers =
+        new Set();
+
+
+    exchanges.forEach(
+        function (exchange) {
+
+            const sender =
+                exchange.sender ||
+                {};
+
+
+            const receiver =
+                exchange.receiver ||
+                {};
+
+
+            const status =
+                String(
+                    exchange.status ||
+                    ""
+                )
+                .toUpperCase();
+
+
+            if (
+                status !== "ACCEPTED" &&
+                status !== "COMPLETED" &&
+                status !== "ACTIVE"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                sender.id &&
+                String(sender.id) !==
+                String(currentUserId)
+            ) {
+
+                connectedUsers.add(
+                    sender.id
+                );
+
+            }
+
+
+            if (
+                receiver.id &&
+                String(receiver.id) !==
+                String(currentUserId)
+            ) {
+
+                connectedUsers.add(
+                    receiver.id
+                );
+
+            }
+
+        }
+    );
+
+
+    element.textContent =
+        connectedUsers.size;
+
+}
+
+
+
+// RATING
+
+function updateRating(
+    exchanges
+) {
+
+    const element =
+        document.getElementById(
+            "rating"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(exchanges)
+    ) {
+
+        element.textContent =
+            "0.0";
+
+        return;
+
+    }
+
+
+    let total =
+        0;
+
+
+    let count =
+        0;
+
+
+    exchanges.forEach(
+        function (exchange) {
+
+            const rating =
+                Number(
+                    exchange.rating
+                );
+
+
+            if (
+                !Number.isNaN(rating) &&
+                rating >= 1 &&
+                rating <= 5
+            ) {
+
+                total +=
+                    rating;
+
+                count++;
+
+            }
+
+
+            // Support nested rating
+            if (
+                exchange.rating &&
+                typeof exchange.rating ===
+                "object"
+            ) {
+
+                const nestedRating =
+                    Number(
+                        exchange.rating.value
+                    );
+
+
+                if (
+                    !Number.isNaN(
+                        nestedRating
+                    ) &&
+                    nestedRating >= 1 &&
+                    nestedRating <= 5
+                ) {
+
+                    total +=
+                        nestedRating;
+
+                    count++;
+
+                }
+
+            }
+
+        }
+    );
+
+
+    const average =
+        count > 0
+            ? total / count
+            : 0;
+
+
+    element.textContent =
+        average.toFixed(1);
+
+}
+
+
+// RATING MODAL
+
+
+function openRatingModal(
+    exchangeId
+) {
+
+    const modal =
+        document.getElementById(
+            "ratingModal"
+        );
+
+
+    const input =
+        document.getElementById(
+            "ratingExchangeId"
+        );
+
+
+    if (
+        !modal ||
+        !input
+    ) {
+
+        alert(
+            "Rating form is not available."
+        );
+
+        return;
+
+    }
+
+
+    input.value =
+        exchangeId;
+
+
+    modal.classList.add(
+        "show"
+    );
+
+}
+
+
+function closeRatingModal() {
+
+    const modal =
+        document.getElementById(
+            "ratingModal"
+        );
+
+
+    if (modal) {
+
+        modal.classList.remove(
+            "show"
+        );
 
     }
 
 }
 
 
-// ==========================================
+// RATING FORM
+
+
+function setupRatingForm() {
+
+    const form =
+        document.getElementById(
+            "ratingForm"
+        );
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const exchangeId =
+                Number(
+                    document.getElementById(
+                        "ratingExchangeId"
+                    ).value
+                );
+
+
+            const rating =
+                Number(
+                    document.getElementById(
+                        "ratingValue"
+                    ).value
+                );
+
+
+            const review =
+                document.getElementById(
+                    "ratingReview"
+                )
+                .value
+                .trim();
+
+
+            const message =
+                document.getElementById(
+                    "ratingMessage"
+                );
+
+
+            const button =
+                document.getElementById(
+                    "ratingSubmitButton"
+                );
+
+
+            if (
+                !exchangeId ||
+                !rating ||
+                rating < 1 ||
+                rating > 5
+            ) {
+
+                showMessage(
+                    message,
+                    "Please select a rating between 1 and 5.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (button) {
+
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "Submitting...";
+
+            }
+
+
+            try {
+
+                /* IMPORTANT:
+                 This endpoint must exist in Spring Boot */
+
+                const response =
+                    await apiFetch(
+                        "/api/ratings",
+                        {
+
+                            method:
+                                "POST",
+
+                            body:
+                                JSON.stringify({
+
+                                    exchangeId,
+
+                                    rating,
+
+                                    review
+
+                                })
+
+                        }
+                    );
+
+
+                const text =
+                    await response.text();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        text ||
+                        "Unable to submit rating."
+                    );
+
+                }
+
+
+                showMessage(
+                    message,
+                    "Rating submitted successfully! ⭐",
+                    "success"
+                );
+
+
+                form.reset();
+
+
+                await loadExchangeRequests();
+
+
+                setTimeout(
+                    closeRatingModal,
+                    1000
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Rating Error:",
+                    error
+                );
+
+
+                showMessage(
+                    message,
+                    error.message,
+                    "error"
+                );
+
+
+            } finally {
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Submit Rating";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// RECENT ACTIVITY
+
+function displayRecentActivity(
+    exchanges
+) {
+
+    const container =
+        document.querySelector(
+            "#activity .empty-activity"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(exchanges) ||
+        exchanges.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="activity-icon">
+                📋
+            </div>
+
+            <h3>
+                No activity yet
+            </h3>
+
+            <p>
+                Start learning or sharing skills
+                to see your activity here.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    const recent =
+        exchanges
+            .slice()
+            .reverse()
+            .slice(
+                0,
+                5
+            );
+
+
+    let html =
+        "";
+
+
+    recent.forEach(
+        function (exchange) {
+
+            const skill =
+                exchange.skill ||
+                {};
+
+
+            const status =
+                String(
+                    exchange.status ||
+                    "PENDING"
+                )
+                .toUpperCase();
+
+
+            const skillName =
+                skill.name ||
+                "Skill";
+
+
+            html += `
+
+                <div class="activity-item">
+
+                    <div class="activity-icon">
+                        🔄
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                skillName
+                            )}
+                        </strong>
+
+                        <p>
+                            Exchange status:
+                            ${escapeHTML(
+                                status
+                            )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+// PROFILE EDIT
+
+function setupProfileEdit() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".profile-card .small-btn"
+        );
+
+
+    buttons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    alert(
+                        "Profile editing can be added here."
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+// MODAL CLOSE
+
+function setupModalClose() {
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target.classList.contains(
+                    "modal"
+                )
+            ) {
+
+                event.target.classList.remove(
+                    "show"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// MESSAGE
+
+function showMessage(
+    element,
+    message,
+    type
+) {
+
+    if (!element) {
+        return;
+    }
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "modal-message " +
+        type;
+
+}
+
+
+// SKILL LOADING
+
+function showSkillsLoading(
+    container
+) {
+
+    container.innerHTML = `
+
+        <div class="skill-card loading-card">
+
+            <div class="skill-icon">
+                ⏳
+            </div>
+
+            <h3>
+                Loading skills...
+            </h3>
+
+            <p>
+                Please wait
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
 // LOGOUT
-// ==========================================
+
 
 function logout() {
 
+    console.log(
+        "Logging out..."
+    );
+
+
     localStorage.removeItem(
         "token"
+    );
+
+
+    localStorage.removeItem(
+        "firebaseToken"
     );
 
 
@@ -2043,23 +2875,37 @@ function logout() {
 
 
     localStorage.removeItem(
+        "role"
+    );
+
+
+    localStorage.removeItem(
         "userRole"
     );
 
 
-    window.location.href =
-        "login.html";
+    localStorage.removeItem(
+        "userId"
+    );
+
+
+    window.location.replace(
+        "login.html"
+    );
 
 }
 
 
-// ==========================================
-// HTML ESCAPE
-// ==========================================
+// ESCAPE HTML
 
-function escapeHTML(value) {
 
-    return String(value)
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
 
         .replace(
             /&/g,
@@ -2087,3 +2933,1362 @@ function escapeHTML(value) {
         );
 
 }
+
+
+// SCROLL TO SKILLS
+
+function scrollToSkills() {
+
+    const section =
+        document.getElementById(
+            "discover"
+        );
+
+
+    if (section) {
+
+        section.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }
+
+}
+
+
+// GLOBAL FUNCTIONS
+
+window.loadSkills =
+    loadSkills;
+
+
+window.openAddSkillModal =
+    openAddSkillModal;
+
+
+window.closeAddSkillModal =
+    closeAddSkillModal;
+
+
+window.openExchangeModal =
+    openExchangeModal;
+
+
+window.closeExchangeModal =
+    closeExchangeModal;
+
+
+window.startSkillExchange =
+    startSkillExchange;
+
+
+window.acceptExchangeRequest =
+    acceptExchangeRequest;
+
+
+window.rejectExchangeRequest =
+    rejectExchangeRequest;
+
+
+window.openRatingModal =
+    openRatingModal;
+
+
+window.closeRatingModal =
+    closeRatingModal;
+
+
+window.logout =
+    logout;
+
+
+window.scrollToSkills =
+    scrollToSkills;
+
+
+// INITIALIZE RATING FORM
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        setupRatingForm();
+
+    }
+);
+
+
+// ============================================================
+// CAMPUS SKILLSWAP - NOTIFICATION SYSTEM
+// FIXED VERSION
+// ============================================================
+
+let notificationData = [];
+let notificationUnreadCount = 0;
+
+
+// ============================================================
+// SETUP NOTIFICATIONS
+// ============================================================
+
+function setupNotifications() {
+
+    const notificationButton =
+        document.getElementById("notificationButton");
+
+    const notificationDropdown =
+        document.getElementById("notificationDropdown");
+
+    if (!notificationButton) {
+
+        console.warn(
+            "Notification button not found."
+        );
+
+        return;
+    }
+
+    if (!notificationDropdown) {
+
+        console.warn(
+            "Notification dropdown not found."
+        );
+
+        return;
+    }
+
+
+    // ------------------------------------------
+    // PREVENT DUPLICATE EVENT LISTENER
+    // ------------------------------------------
+
+    if (
+        notificationButton.dataset.notificationReady === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    notificationButton.dataset.notificationReady =
+        "true";
+
+
+    // ------------------------------------------
+    // BUTTON CLICK
+    // ------------------------------------------
+
+    notificationButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            toggleNotificationPanel();
+
+        }
+    );
+
+
+    // ------------------------------------------
+    // MARK ALL READ
+    // ------------------------------------------
+
+    const markButton =
+        document.getElementById(
+            "markNotificationsRead"
+        );
+
+
+    if (markButton) {
+
+        markButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+                markAllNotificationsRead();
+
+            }
+        );
+
+    }
+
+
+    // ------------------------------------------
+    // INITIAL LOAD
+    // ------------------------------------------
+
+    loadNotifications();
+
+
+    // ------------------------------------------
+    // AUTO REFRESH
+    // ------------------------------------------
+
+    setInterval(
+        function () {
+
+            loadNotifications();
+
+        },
+        10000
+    );
+
+
+    console.log(
+        "Notification system initialized successfully."
+    );
+
+}
+
+
+
+// ============================================================
+// LOAD NOTIFICATIONS
+// ============================================================
+
+async function loadNotifications() {
+
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+
+    if (!list) {
+
+        console.warn(
+            "notificationList not found."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await apiFetch(
+                "/api/exchange"
+            );
+
+
+        if (!response.ok) {
+
+            const text =
+                await response.text();
+
+            throw new Error(
+                text ||
+                "Unable to load notifications."
+            );
+
+        }
+
+
+        const exchanges =
+            await response.json();
+
+
+        const requests =
+            Array.isArray(exchanges)
+                ? exchanges
+                : [];
+
+
+        console.log(
+            "Notification exchange data:",
+            requests
+        );
+
+
+        // ------------------------------------------
+        // CURRENT USER
+        // ------------------------------------------
+
+        const currentUserId =
+            getCurrentUserId();
+
+
+        if (!currentUserId) {
+
+            console.warn(
+                "userId not found in localStorage."
+            );
+
+            notificationData = [];
+
+            renderNotifications();
+
+            updateNotificationBadge();
+
+            return;
+
+        }
+
+
+        // ------------------------------------------
+        // SAVE OLD READ STATES
+        // ------------------------------------------
+
+        const oldNotifications =
+            new Map();
+
+
+        notificationData.forEach(
+            function (notification) {
+
+                oldNotifications.set(
+                    notification.id,
+                    notification.unread
+                );
+
+            }
+        );
+
+
+        // ------------------------------------------
+        // CREATE NOTIFICATIONS
+        // ------------------------------------------
+
+        const newNotifications = [];
+
+
+        requests.forEach(
+            function (exchange) {
+
+                if (!exchange) {
+
+                    return;
+
+                }
+
+
+                const exchangeId =
+                    exchange.id;
+
+
+                const status =
+                    String(
+                        exchange.status ||
+                        "PENDING"
+                    )
+                    .trim()
+                    .toUpperCase();
+
+
+                const sender =
+                    exchange.sender ||
+                    {};
+
+
+                const receiver =
+                    exchange.receiver ||
+                    {};
+
+
+                const skill =
+                    exchange.skill ||
+                    {};
+
+
+                const senderId =
+                    sender.id;
+
+
+                const receiverId =
+                    receiver.id;
+
+
+                const senderName =
+                    sender.username ||
+                    sender.name ||
+                    sender.email ||
+                    "A student";
+
+
+                const receiverName =
+                    receiver.username ||
+                    receiver.name ||
+                    receiver.email ||
+                    "A student";
+
+
+                const skillName =
+                    skill.name ||
+                    "a skill";
+
+
+                // ====================================================
+                // 1. RECEIVED PENDING REQUEST
+                // ====================================================
+
+                if (
+                    status === "PENDING" &&
+                    receiverId &&
+                    String(receiverId) ===
+                    String(currentUserId)
+                ) {
+
+                    const notificationId =
+                        "exchange-request-" +
+                        exchangeId;
+
+
+                    newNotifications.push({
+
+                        id:
+                            notificationId,
+
+                        type:
+                            "EXCHANGE_REQUEST",
+
+                        title:
+                            "New Exchange Request",
+
+                        message:
+                            senderName +
+                            " wants to exchange " +
+                            skillName +
+                            " with you.",
+
+                        icon:
+                            "🔄",
+
+                        time:
+                            getNotificationTime(
+                                exchange.createdAt
+                            ),
+
+                        unread:
+                            oldNotifications.has(
+                                notificationId
+                            )
+                                ? oldNotifications.get(
+                                    notificationId
+                                )
+                                : true,
+
+                        exchangeId:
+                            exchangeId
+
+                    });
+
+                }
+
+
+                // ====================================================
+                // 2. SENT REQUEST ACCEPTED
+                // ====================================================
+
+                if (
+                    status === "ACCEPTED" &&
+                    senderId &&
+                    String(senderId) ===
+                    String(currentUserId)
+                ) {
+
+                    const notificationId =
+                        "exchange-accepted-" +
+                        exchangeId;
+
+
+                    newNotifications.push({
+
+                        id:
+                            notificationId,
+
+                        type:
+                            "EXCHANGE_ACCEPTED",
+
+                        title:
+                            "Exchange Request Accepted",
+
+                        message:
+                            receiverName +
+                            " accepted your exchange request for " +
+                            skillName +
+                            ".",
+
+                        icon:
+                            "✅",
+
+                        time:
+                            getNotificationTime(
+                                exchange.updatedAt ||
+                                exchange.createdAt
+                            ),
+
+                        unread:
+                            oldNotifications.has(
+                                notificationId
+                            )
+                                ? oldNotifications.get(
+                                    notificationId
+                                )
+                                : true,
+
+                        exchangeId:
+                            exchangeId
+
+                    });
+
+                }
+
+
+                // ====================================================
+                // 3. SENT REQUEST REJECTED
+                // ====================================================
+
+                if (
+                    status === "REJECTED" &&
+                    senderId &&
+                    String(senderId) ===
+                    String(currentUserId)
+                ) {
+
+                    const notificationId =
+                        "exchange-rejected-" +
+                        exchangeId;
+
+
+                    newNotifications.push({
+
+                        id:
+                            notificationId,
+
+                        type:
+                            "EXCHANGE_REJECTED",
+
+                        title:
+                            "Exchange Request Rejected",
+
+                        message:
+                            receiverName +
+                            " rejected your exchange request for " +
+                            skillName +
+                            ".",
+
+                        icon:
+                            "❌",
+
+                        time:
+                            getNotificationTime(
+                                exchange.updatedAt ||
+                                exchange.createdAt
+                            ),
+
+                        unread:
+                            oldNotifications.has(
+                                notificationId
+                            )
+                                ? oldNotifications.get(
+                                    notificationId
+                                )
+                                : true,
+
+                        exchangeId:
+                            exchangeId
+
+                    });
+
+                }
+
+
+                // ====================================================
+                // 4. COMPLETED EXCHANGE
+                // ====================================================
+
+                if (
+                    status === "COMPLETED"
+                ) {
+
+                    const isSender =
+                        senderId &&
+                        String(senderId) ===
+                        String(currentUserId);
+
+
+                    const isReceiver =
+                        receiverId &&
+                        String(receiverId) ===
+                        String(currentUserId);
+
+
+                    if (
+                        isSender ||
+                        isReceiver
+                    ) {
+
+                        const notificationId =
+                            "exchange-completed-" +
+                            exchangeId;
+
+
+                        newNotifications.push({
+
+                            id:
+                                notificationId,
+
+                            type:
+                                "EXCHANGE_COMPLETED",
+
+                            title:
+                                "Exchange Completed",
+
+                            message:
+                                "Your exchange for " +
+                                skillName +
+                                " has been completed.",
+
+                            icon:
+                                "🎉",
+
+                            time:
+                                getNotificationTime(
+                                    exchange.updatedAt ||
+                                    exchange.createdAt
+                                ),
+
+                            unread:
+                                oldNotifications.has(
+                                    notificationId
+                                )
+                                    ? oldNotifications.get(
+                                        notificationId
+                                    )
+                                    : true,
+
+                            exchangeId:
+                                exchangeId
+
+                        });
+
+                    }
+
+                }
+
+            }
+        );
+
+
+        // ====================================================
+        // SAVE NOTIFICATIONS
+        // ====================================================
+
+        notificationData =
+            newNotifications;
+
+
+        console.log(
+            "Notifications generated:",
+            notificationData
+        );
+
+
+        // ====================================================
+        // RENDER
+        // ====================================================
+
+        renderNotifications();
+
+        updateNotificationBadge();
+
+
+    } catch (error) {
+
+        console.error(
+            "Notification Error:",
+            error
+        );
+
+
+        list.innerHTML = `
+
+            <div class="notification-empty">
+
+                <div class="notification-empty-icon">
+                    ⚠️
+                </div>
+
+                <h4>
+                    Unable to load notifications
+                </h4>
+
+                <p>
+                    ${escapeHTML(
+                        error.message ||
+                        "Please try again."
+                    )}
+                </p>
+
+                <button
+                    type="button"
+                    onclick="loadNotifications()"
+                >
+                    Try Again
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+// ============================================================
+// RENDER NOTIFICATIONS
+// ============================================================
+
+function renderNotifications() {
+
+    const list =
+        document.getElementById(
+            "notificationList"
+        );
+
+
+    if (!list) {
+
+        return;
+
+    }
+
+
+    // ========================================================
+    // NO NOTIFICATIONS
+    // ========================================================
+
+    if (
+        !notificationData ||
+        notificationData.length === 0
+    ) {
+
+        list.innerHTML = `
+
+            <div class="notification-empty">
+
+                <div class="notification-empty-icon">
+                    🔔
+                </div>
+
+                <h4>
+                    No notifications
+                </h4>
+
+                <p>
+                    You're all caught up!
+                </p>
+
+            </div>
+
+        `;
+
+
+        updateNotificationCountText();
+
+        return;
+
+    }
+
+
+    // ========================================================
+    // NEWEST FIRST
+    // ========================================================
+
+    const sorted =
+        notificationData
+            .slice()
+            .reverse();
+
+
+    list.innerHTML = "";
+
+
+    // ========================================================
+    // CREATE EACH NOTIFICATION
+    // ========================================================
+
+    sorted.forEach(
+        function (notification) {
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "notification-item" +
+                (
+                    notification.unread
+                        ? " unread"
+                        : ""
+                );
+
+
+            item.dataset.id =
+                notification.id;
+
+
+            item.innerHTML = `
+
+                <div class="notification-icon">
+
+                    ${notification.icon}
+
+                </div>
+
+
+                <div class="notification-content">
+
+                    <strong>
+
+                        ${escapeHTML(
+                            notification.title
+                        )}
+
+                    </strong>
+
+
+                    <p>
+
+                        ${escapeHTML(
+                            notification.message
+                        )}
+
+                    </p>
+
+
+                    <span class="notification-time">
+
+                        ${escapeHTML(
+                            notification.time
+                        )}
+
+                    </span>
+
+                </div>
+
+
+                ${
+                    notification.unread
+
+                    ?
+
+                    `
+                        <span
+                            class="notification-unread-dot"
+                        ></span>
+                    `
+
+                    :
+
+                    ""
+                }
+
+            `;
+
+
+            // =================================================
+            // CLICK NOTIFICATION
+            // =================================================
+
+            item.addEventListener(
+                "click",
+                function () {
+
+                    notification.unread =
+                        false;
+
+
+                    item.classList.remove(
+                        "unread"
+                    );
+
+
+                    updateNotificationBadge();
+
+                    updateNotificationCountText();
+
+
+                    // -----------------------------------------
+                    // RECEIVED REQUEST
+                    // -----------------------------------------
+
+                    if (
+                        notification.type ===
+                        "EXCHANGE_REQUEST"
+                    ) {
+
+                        const section =
+                            document.getElementById(
+                                "exchangeRequests"
+                            );
+
+
+                        if (section) {
+
+                            section.scrollIntoView({
+                                behavior:
+                                    "smooth"
+                            });
+
+                        }
+
+
+                        loadExchangeRequests();
+
+                    }
+
+                }
+            );
+
+
+            list.appendChild(
+                item
+            );
+
+        }
+    );
+
+
+    updateNotificationCountText();
+
+}
+
+
+
+// ============================================================
+// NOTIFICATION BADGE
+// ============================================================
+
+function updateNotificationBadge() {
+
+    const button =
+        document.getElementById(
+            "notificationButton"
+        );
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    const unread =
+        notificationData.filter(
+            function (notification) {
+
+                return (
+                    notification.unread === true
+                );
+
+            }
+        ).length;
+
+
+    notificationUnreadCount =
+        unread;
+
+
+    // ========================================================
+    // COUNT BADGE
+    // ========================================================
+
+    const badge =
+        document.getElementById(
+            "notificationCount"
+        );
+
+
+    if (badge) {
+
+        if (unread > 0) {
+
+            badge.textContent =
+                unread > 99
+                    ? "99+"
+                    : unread;
+
+
+            badge.style.display =
+                "flex";
+
+        } else {
+
+            badge.textContent =
+                "0";
+
+
+            badge.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // DOT
+    // ========================================================
+
+    const dot =
+        document.getElementById(
+            "notificationDot"
+        );
+
+
+    if (dot) {
+
+        dot.style.display =
+            unread > 0
+                ? "block"
+                : "none";
+
+    }
+
+}
+
+
+
+// ============================================================
+// NOTIFICATION COUNT TEXT
+// ============================================================
+
+function updateNotificationCountText() {
+
+    const element =
+        document.getElementById(
+            "notificationSubtitle"
+        );
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    const unread =
+        notificationData.filter(
+            function (notification) {
+
+                return (
+                    notification.unread === true
+                );
+
+            }
+        ).length;
+
+
+    if (unread === 0) {
+
+        element.textContent =
+            "You're all caught up!";
+
+    } else if (unread === 1) {
+
+        element.textContent =
+            "1 unread notification";
+
+    } else {
+
+        element.textContent =
+            unread +
+            " unread notifications";
+
+    }
+
+}
+
+
+
+// ============================================================
+// TOGGLE NOTIFICATION DROPDOWN
+// ============================================================
+
+function toggleNotificationPanel() {
+
+    const dropdown =
+        document.getElementById(
+            "notificationDropdown"
+        );
+
+
+    if (!dropdown) {
+
+        console.warn(
+            "notificationDropdown not found."
+        );
+
+        return;
+
+    }
+
+
+    dropdown.classList.toggle(
+        "show"
+    );
+
+
+    console.log(
+        "Notification dropdown:",
+        dropdown.className
+    );
+
+
+    // ------------------------------------------
+    // LOAD AGAIN WHEN OPENED
+    // ------------------------------------------
+
+    if (
+        dropdown.classList.contains(
+            "show"
+        )
+    ) {
+
+        loadNotifications();
+
+    }
+
+}
+
+
+
+// ============================================================
+// MARK ALL NOTIFICATIONS READ
+// ============================================================
+
+function markAllNotificationsRead() {
+
+    notificationData.forEach(
+        function (notification) {
+
+            notification.unread =
+                false;
+
+        }
+    );
+
+
+    renderNotifications();
+
+    updateNotificationBadge();
+
+
+    console.log(
+        "All notifications marked as read."
+    );
+
+}
+
+
+
+// ============================================================
+// NOTIFICATION TIME
+// ============================================================
+
+function getNotificationTime(
+    dateValue
+) {
+
+    if (!dateValue) {
+
+        return "Recently";
+
+    }
+
+
+    const date =
+        new Date(dateValue);
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "Recently";
+
+    }
+
+
+    const now =
+        new Date();
+
+
+    const difference =
+        now.getTime() -
+        date.getTime();
+
+
+    // Future date
+    if (
+        difference < 0
+    ) {
+
+        return "Just now";
+
+    }
+
+
+    const minutes =
+        Math.floor(
+            difference /
+            (1000 * 60)
+        );
+
+
+    if (
+        minutes < 1
+    ) {
+
+        return "Just now";
+
+    }
+
+
+    if (
+        minutes < 60
+    ) {
+
+        return (
+            minutes +
+            " min ago"
+        );
+
+    }
+
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    if (
+        hours < 24
+    ) {
+
+        return (
+            hours +
+            " hr ago"
+        );
+
+    }
+
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+
+    if (
+        days < 7
+    ) {
+
+        return (
+            days +
+            (
+                days === 1
+                    ? " day ago"
+                    : " days ago"
+            )
+        );
+
+    }
+
+
+    return date.toLocaleDateString();
+
+}
+
+
+
+// ============================================================
+// CLOSE NOTIFICATION WHEN CLICKING OUTSIDE
+// ============================================================
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const dropdown =
+            document.getElementById(
+                "notificationDropdown"
+            );
+
+
+        const button =
+            document.getElementById(
+                "notificationButton"
+            );
+
+
+        if (
+            !dropdown ||
+            !button
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            dropdown.classList.contains(
+                "show"
+            ) &&
+            !dropdown.contains(
+                event.target
+            ) &&
+            !button.contains(
+                event.target
+            )
+        ) {
+
+            dropdown.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+
+// ============================================================
+// GLOBAL FUNCTIONS
+// ============================================================
+
+window.loadNotifications =
+    loadNotifications;
+
+
+window.setupNotifications =
+    setupNotifications;
+
+
+window.toggleNotificationPanel =
+    toggleNotificationPanel;
+
+
+window.markAllNotificationsRead =
+    markAllNotificationsRead;
+
+

@@ -19,7 +19,9 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(
+            JwtAuthFilter jwtAuthFilter) {
+
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
@@ -29,6 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 
@@ -42,10 +45,10 @@ public class SecurityConfig {
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(
+        configuration.setAllowedOrigins(
                 List.of(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*"
+                        "http://127.0.0.1:5500",
+                        "http://localhost:5500"
                 )
         );
 
@@ -60,10 +63,14 @@ public class SecurityConfig {
         );
 
         configuration.setAllowedHeaders(
-                List.of("*")
+                List.of(
+                        "Authorization",
+                        "Content-Type",
+                        "Accept"
+                )
         );
 
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
@@ -86,9 +93,21 @@ public class SecurityConfig {
 
         http
 
+            // ----------------------------------
+            // CSRF
+            // ----------------------------------
+
             .csrf(csrf -> csrf.disable())
 
+            // ----------------------------------
+            // CORS
+            // ----------------------------------
+
             .cors(cors -> {})
+
+            // ----------------------------------
+            // SESSION
+            // ----------------------------------
 
             .sessionManagement(session ->
                 session.sessionCreationPolicy(
@@ -96,38 +115,45 @@ public class SecurityConfig {
                 )
             )
 
+            // ----------------------------------
+            // AUTHORIZATION
+            // ----------------------------------
+
             .authorizeHttpRequests(auth -> auth
 
-                // ==============================
-                // PUBLIC AUTH APIs
-                // ==============================
-
+                // Auth APIs
                 .requestMatchers(
                     "/api/auth/**"
                 ).permitAll()
 
-                // ==============================
-                // ADMIN ONLY
-                // ==============================
-
+                // OPTIONS / CORS preflight
                 .requestMatchers(
-                    "/api/admin/**"
+                    org.springframework.http.HttpMethod.OPTIONS,
+                    "/**"
+                ).permitAll()
+
+                // Admin users
+                .requestMatchers(
+                    "/api/users/**"
                 ).hasRole("ADMIN")
 
-                // ==============================
-                // STUDENT ONLY
-                // ==============================
-
+                // Skills
                 .requestMatchers(
-                    "/api/student/**"
-                ).hasRole("STUDENT")
+                    "/api/skills/**"
+                ).authenticated()
 
-                // ==============================
-                // OTHER AUTHENTICATED APIs
-                // ==============================
+                // Exchange
+                .requestMatchers(
+                    "/api/exchange/**"
+                ).authenticated()
 
+                // Other APIs
                 .anyRequest().authenticated()
             )
+
+            // ----------------------------------
+            // JWT
+            // ----------------------------------
 
             .addFilterBefore(
                 jwtAuthFilter,

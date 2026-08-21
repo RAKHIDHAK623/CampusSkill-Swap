@@ -1,3 +1,4 @@
+
 package com.campusskillswap.backend.request;
 
 public class LoginRequest {
@@ -5,6 +6,8 @@ public class LoginRequest {
     private String email;
     private String password;
 
+    public LoginRequest() {
+    }
 
     public String getEmail() {
         return email;
@@ -14,7 +17,6 @@ public class LoginRequest {
         this.email = email;
     }
 
-
     public String getPassword() {
         return password;
     }
@@ -23,3 +25,4 @@ public class LoginRequest {
         this.password = password;
     }
 }
+

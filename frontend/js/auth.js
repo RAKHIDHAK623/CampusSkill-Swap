@@ -1,18 +1,34 @@
 // ==========================================
-// CAMPUS SKILLSWAP - FIREBASE AUTH.JS
-// Firebase Login + Firebase Register
-// Spring Boot Backend Integration
+// CAMPUS SKILLSWAP - AUTH.JS
+// Firebase Authentication
+// Spring Boot Authentication
+// JWT + Role Based Authentication
+// ==========================================
+
+import { auth } from "./firebase-config.js";
+
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+
+// ==========================================
+// API
 // ==========================================
 
 const API_BASE_URL = "http://localhost:8081/api";
 
+
 // ==========================================
-// MESSAGE HELPER
+// MESSAGE
 // ==========================================
 
 function showMessage(elementId, message, type) {
 
-    const element = document.getElementById(elementId);
+    const element =
+        document.getElementById(elementId);
 
     if (!element) {
         return;
@@ -29,9 +45,10 @@ function showMessage(elementId, message, type) {
 
 function togglePassword(inputId, button) {
 
-    const input = document.getElementById(inputId);
+    const input =
+        document.getElementById(inputId);
 
-    if (!input) {
+    if (!input || !button) {
         return;
     }
 
@@ -44,50 +61,177 @@ function togglePassword(inputId, button) {
 
         input.type = "password";
         button.textContent = "👁";
+
     }
 }
 
-
-// Make onclick="togglePassword()" work
 window.togglePassword = togglePassword;
 
 
 // ==========================================
-// FIREBASE AUTH HELPER
-// ==========================================
-
-async function getFirebaseAuthFunctions() {
-
-    const firebaseAuth = await import(
-        "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js"
-    );
-
-    return firebaseAuth;
-}
-
-
-// ==========================================
-// FIREBASE AUTH CHECK
+// CHECK FIREBASE
 // ==========================================
 
 function checkFirebaseAuth() {
 
-    if (!window.firebaseAuth) {
+    if (!auth) {
 
         throw new Error(
             "Firebase is not initialized."
         );
+
     }
 
-    return window.firebaseAuth;
+    return auth;
 }
 
 
 // ==========================================
-// LOGIN
+// NORMALIZE ROLE
 // ==========================================
 
-const loginForm = document.getElementById("loginForm");
+function normalizeRole(role) {
+
+    if (!role) {
+        return "STUDENT";
+    }
+
+    return String(role)
+        .trim()
+        .toUpperCase();
+}
+
+
+// ==========================================
+// SAVE LOGIN DATA
+// ==========================================
+
+function saveAuthData(
+    token,
+    firebaseToken,
+    email,
+    role,
+    userId
+) {
+
+    const normalizedRole =
+        normalizeRole(role);
+
+
+    // ======================================
+    // JWT TOKEN
+    // ======================================
+
+    localStorage.setItem(
+        "token",
+        token
+    );
+
+
+    // ======================================
+    // FIREBASE TOKEN
+    // ======================================
+
+    localStorage.setItem(
+        "firebaseToken",
+        firebaseToken
+    );
+
+
+    // ======================================
+    // EMAIL
+    // ======================================
+
+    localStorage.setItem(
+        "userEmail",
+        email
+    );
+
+
+    // ======================================
+    // ROLE
+    // ======================================
+
+    localStorage.setItem(
+        "role",
+        normalizedRole
+    );
+
+
+    // Remove duplicate old role
+    localStorage.removeItem(
+        "userRole"
+    );
+
+
+    // ======================================
+    // USER ID
+    // ======================================
+
+    if (
+        userId !== null &&
+        userId !== undefined &&
+        userId !== ""
+    ) {
+
+        localStorage.setItem(
+            "userId",
+            String(userId)
+        );
+
+    }
+
+
+    // ======================================
+    // DEBUG
+    // ======================================
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "AUTH DATA SAVED"
+    );
+
+    console.log(
+        "Email:",
+        email
+    );
+
+    console.log(
+        "User ID:",
+        userId
+    );
+
+    console.log(
+        "Role:",
+        normalizedRole
+    );
+
+    console.log(
+        "Token:",
+        !!token
+    );
+
+    console.log(
+        "Firebase Token:",
+        !!firebaseToken
+    );
+
+    console.log(
+        "================================="
+    );
+}
+
+
+// ==========================================
+// LOGIN FORM
+// ==========================================
+
+const loginForm =
+    document.getElementById("loginForm");
+
 
 if (loginForm) {
 
@@ -97,18 +241,41 @@ if (loginForm) {
 
             event.preventDefault();
 
-            const email = document
-                .getElementById("loginEmail")
-                .value
-                .trim();
 
-            const password = document
-                .getElementById("loginPassword")
-                .value;
+            const emailInput =
+                document.getElementById(
+                    "loginEmail"
+                );
 
-            const button = document.getElementById(
-                "loginButton"
-            );
+
+            const passwordInput =
+                document.getElementById(
+                    "loginPassword"
+                );
+
+
+            const button =
+                document.getElementById(
+                    "loginButton"
+                );
+
+
+            if (
+                !emailInput ||
+                !passwordInput
+            ) {
+
+                return;
+
+            }
+
+
+            const email =
+                emailInput.value.trim();
+
+
+            const password =
+                passwordInput.value;
 
 
             // ==================================
@@ -124,36 +291,38 @@ if (loginForm) {
                 );
 
                 return;
+
             }
 
 
-            button.disabled = true;
+            if (button) {
 
-            button.textContent =
-                "Logging in...";
+                button.disabled = true;
+
+                button.textContent =
+                    "Logging in...";
+
+            }
 
 
             try {
 
                 // ==================================
-                // FIREBASE AUTH
+                // FIREBASE LOGIN
                 // ==================================
 
-                const auth = checkFirebaseAuth();
-
-                const {
-                    signInWithEmailAndPassword
-                } = await getFirebaseAuthFunctions();
+                const firebaseAuth =
+                    checkFirebaseAuth();
 
 
                 console.log(
-                    "Starting Firebase login..."
+                    "Firebase login started..."
                 );
 
 
                 const firebaseResult =
                     await signInWithEmailAndPassword(
-                        auth,
+                        firebaseAuth,
                         email,
                         password
                     );
@@ -164,46 +333,61 @@ if (loginForm) {
 
 
                 console.log(
-                    "Firebase Login Successful:",
+                    "Firebase login successful:",
                     firebaseUser.email
                 );
 
 
                 // ==================================
-                // FIREBASE ID TOKEN
+                // FIREBASE TOKEN
                 // ==================================
 
                 const firebaseToken =
-                    await firebaseUser.getIdToken();
+                    await firebaseUser.getIdToken(
+                        true
+                    );
 
 
                 console.log(
-                    "Firebase ID Token received."
+                    "Firebase token received."
                 );
 
 
                 // ==================================
-                // SPRING BOOT LOGIN
+                // BACKEND LOGIN
                 // ==================================
+
+                console.log(
+                    "Backend login started..."
+                );
+
 
                 const response =
                     await fetch(
                         `${API_BASE_URL}/auth/login`,
                         {
-                            method: "POST",
+
+                            method:
+                                "POST",
 
                             headers: {
+
                                 "Content-Type":
                                     "application/json"
+
                             },
 
-                            body: JSON.stringify({
+                            body:
+                                JSON.stringify({
 
-                                email: email,
+                                    email:
+                                        email,
 
-                                password: password
+                                    password:
+                                        password
 
-                            })
+                                })
+
                         }
                     );
 
@@ -213,149 +397,186 @@ if (loginForm) {
 
 
                 console.log(
-                    "Spring Boot Login Status:",
+                    "Backend Status:",
                     response.status
                 );
 
 
                 console.log(
-                    "Spring Boot Login Response:",
+                    "Backend Response:",
                     responseText
                 );
 
 
+                // ==================================
+                // RESPONSE CHECK
+                // ==================================
+
                 if (!response.ok) {
 
                     throw new Error(
-                        "Firebase login succeeded, but backend login failed."
+                        responseText ||
+                        "Backend login failed."
                     );
+
                 }
 
 
                 // ==================================
-                // GET BACKEND JWT + ROLE
+                // PARSE RESPONSE
                 // ==================================
 
-                let token =
-                    responseText.trim();
-
-                let role = null;
+                let data;
 
 
                 try {
 
-                    const data =
+                    data =
                         JSON.parse(
                             responseText
                         );
 
-
-                    console.log(
-                        "Backend Login Data:",
-                        data
-                    );
-
-
-                    // ----------------------------------
-                    // BACKEND RETURNS STRING
-                    // ----------------------------------
-
-                    if (
-                        typeof data === "string"
-                    ) {
-
-                        token = data;
-
-                    }
-
-                    // ----------------------------------
-                    // BACKEND RETURNS OBJECT
-                    // ----------------------------------
-
-                    else {
-
-                        // TOKEN
-
-                        if (data.token) {
-
-                            token =
-                                data.token;
-
-                        }
-
-                        else if (data.accessToken) {
-
-                            token =
-                                data.accessToken;
-
-                        }
-
-                        else if (data.jwt) {
-
-                            token =
-                                data.jwt;
-
-                        }
-
-
-                        // ROLE
-
-                        if (data.role) {
-
-                            role =
-                                data.role;
-
-                        }
-
-                        else if (data.userRole) {
-
-                            role =
-                                data.userRole;
-
-                        }
-
-                        else if (
-                            data.user &&
-                            data.user.role
-                        ) {
-
-                            role =
-                                data.user.role;
-
-                        }
-                    }
-
-
                 } catch (error) {
 
-                    console.log(
-                        "Backend returned plain JWT."
-                    );
+                    data =
+                        responseText;
+
+                }
+
+
+                console.log(
+                    "Parsed login response:",
+                    data
+                );
+
+
+                // ==================================
+                // GET BACKEND TOKEN
+                // ==================================
+
+                let backendToken = null;
+
+
+                if (
+                    typeof data === "string"
+                ) {
+
+                    backendToken =
+                        data;
+
+                } else if (data) {
+
+                    backendToken =
+                        data.token ||
+                        data.accessToken ||
+                        data.jwt;
+
                 }
 
 
                 // ==================================
-                // CLEAN TOKEN
+                // TOKEN VALIDATION
                 // ==================================
 
-                token =
-                    token
-                        .trim()
-                        .replace(
-                            /^"|"$/g,
-                            ""
-                        );
-
-
-                // ==================================
-                // CHECK TOKEN
-                // ==================================
-
-                if (!token) {
+                if (!backendToken) {
 
                     throw new Error(
                         "Backend JWT token was not received."
                     );
+
+                }
+
+
+                backendToken =
+                    String(
+                        backendToken
+                    ).trim();
+
+
+                // ==================================
+                // GET ROLE
+                // ==================================
+
+                let role = null;
+
+
+                if (
+                    typeof data === "object" &&
+                    data
+                ) {
+
+                    role =
+                        data.role ||
+                        data.userRole ||
+                        data.user?.role;
+
+                }
+
+
+                if (!role) {
+
+                    console.warn(
+                        "Backend did not return role. Using STUDENT."
+                    );
+
+                    role =
+                        "STUDENT";
+
+                }
+
+
+                role =
+                    normalizeRole(
+                        role
+                    );
+
+
+                // ==================================
+                // GET USER ID
+                // ==================================
+
+                let userId = null;
+
+
+                if (
+                    typeof data === "object" &&
+                    data
+                ) {
+
+                    userId =
+                        data.userId ||
+                        data.id ||
+                        data.user?.id ||
+                        data.user?.userId;
+
+                }
+
+
+                console.log(
+                    "Backend User ID:",
+                    userId
+                );
+
+
+                // ==================================
+                // USER ID VALIDATION
+                // ==================================
+
+                if (
+                    userId === null ||
+                    userId === undefined ||
+                    userId === ""
+                ) {
+
+                    console.error(
+                        "Backend did not return userId."
+                    );
+
+
+                    throw new Error(
+                        "Login successful but User ID was not received from backend."
+                    );
+
                 }
 
 
@@ -363,81 +584,17 @@ if (loginForm) {
                 // SAVE AUTH DATA
                 // ==================================
 
-                localStorage.setItem(
-                    "token",
-                    token
-                );
-
-
-                localStorage.setItem(
-                    "firebaseToken",
-                    firebaseToken
-                );
-
-
-                localStorage.setItem(
-                    "userEmail",
-                    firebaseUser.email
+                saveAuthData(
+                    backendToken,
+                    firebaseToken,
+                    firebaseUser.email,
+                    role,
+                    userId
                 );
 
 
                 // ==================================
-                // SAVE ROLE
-                // ==================================
-
-                if (role) {
-
-                    localStorage.setItem(
-                        "role",
-                        role
-                    );
-
-                    console.log(
-                        "Role saved:",
-                        role
-                    );
-
-                } else {
-
-                    console.warn(
-                        "Role was NOT returned by backend."
-                    );
-
-                    localStorage.removeItem(
-                        "role"
-                    );
-                }
-
-
-                // ==================================
-                // DEBUG
-                // ==================================
-
-                console.log(
-                    "Backend JWT saved."
-                );
-
-                console.log(
-                    "Firebase authentication complete."
-                );
-
-                console.log(
-                    "Logged in email:",
-                    localStorage.getItem(
-                        "userEmail"
-                    )
-                );
-
-                console.log(
-                    "Logged in role:",
-                    localStorage.getItem(
-                        "role"
-                    )
-                );
-
-
-                // ==================================
-                // SUCCESS
+                // SUCCESS MESSAGE
                 // ==================================
 
                 showMessage(
@@ -447,15 +604,184 @@ if (loginForm) {
                 );
 
 
-                button.textContent =
-                    "Login Successful ✓";
+                if (button) {
 
+                    button.textContent =
+                        "Login Successful ✓";
+
+                }
+
+
+                // ==================================
+                // FINAL LOGIN CHECK
+                // ==================================
 
                 setTimeout(
                     function () {
 
-                        window.location.href =
-                            "dashboard.html";
+                        const savedToken =
+                            localStorage.getItem(
+                                "token"
+                            );
+
+
+                        const savedRole =
+                            (
+                                localStorage.getItem(
+                                    "role"
+                                ) ||
+                                "STUDENT"
+                            )
+                            .trim()
+                            .toUpperCase();
+
+
+                        const savedEmail =
+                            localStorage.getItem(
+                                "userEmail"
+                            );
+
+
+                        const savedUserId =
+                            localStorage.getItem(
+                                "userId"
+                            );
+
+
+                        console.log(
+                            "========== FINAL LOGIN CHECK =========="
+                        );
+
+                        console.log(
+                            "TOKEN:",
+                            savedToken
+                        );
+
+                        console.log(
+                            "ROLE:",
+                            savedRole
+                        );
+
+                        console.log(
+                            "EMAIL:",
+                            savedEmail
+                        );
+
+                        console.log(
+                            "USER ID:",
+                            savedUserId
+                        );
+
+                        console.log(
+                            "========================================"
+                        );
+
+
+                        // ==================================
+                        // TOKEN CHECK
+                        // ==================================
+
+                        if (!savedToken) {
+
+                            console.error(
+                                "TOKEN NOT SAVED!"
+                            );
+
+
+                            showMessage(
+                                "loginMessage",
+                                "Login succeeded but token was not saved.",
+                                "error"
+                            );
+
+
+                            if (button) {
+
+                                button.disabled =
+                                    false;
+
+                                button.textContent =
+                                    "Login";
+
+                            }
+
+
+                            return;
+
+                        }
+
+
+                        // ==================================
+                        // USER ID CHECK
+                        // ==================================
+
+                        if (!savedUserId) {
+
+                            console.error(
+                                "USER ID NOT SAVED!"
+                            );
+
+
+                            showMessage(
+                                "loginMessage",
+                                "Login succeeded but User ID was not saved.",
+                                "error"
+                            );
+
+
+                            if (button) {
+
+                                button.disabled =
+                                    false;
+
+                                button.textContent =
+                                    "Login";
+
+                            }
+
+
+                            return;
+
+                        }
+
+
+                        // ==================================
+                        // ADMIN REDIRECT
+                        // ==================================
+
+                        if (
+                            savedRole ===
+                            "ADMIN"
+                        ) {
+
+                            console.log(
+                                "ADMIN → admin-dashboard.html"
+                            );
+
+
+                            window.location.replace(
+                                "admin-dashboard.html"
+                            );
+
+
+                        }
+
+                        // ==================================
+                        // STUDENT REDIRECT
+                        // ==================================
+
+                        else {
+
+                            console.log(
+                                "STUDENT → dashboard.html"
+                            );
+
+
+                            window.location.replace(
+                                "dashboard.html"
+                            );
+
+                        }
 
                     },
                     700
@@ -465,7 +791,7 @@ if (loginForm) {
             } catch (error) {
 
                 console.error(
-                    "Firebase Login Error:",
+                    "Login Error:",
                     error
                 );
 
@@ -534,6 +860,7 @@ if (loginForm) {
 
                     message =
                         error.message;
+
                 }
 
 
@@ -544,14 +871,21 @@ if (loginForm) {
                 );
 
 
-                button.disabled = false;
+                if (button) {
 
-                button.textContent =
-                    "Login";
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Login";
+
+                }
+
             }
 
         }
     );
+
 }
 
 
@@ -560,7 +894,10 @@ if (loginForm) {
 // ==========================================
 
 const registerForm =
-    document.getElementById("registerForm");
+    document.getElementById(
+        "registerForm"
+    );
+
 
 if (registerForm) {
 
@@ -572,37 +909,39 @@ if (registerForm) {
 
 
             const username =
-                document
-                    .getElementById(
-                        "registerUsername"
-                    )
-                    .value
-                    .trim();
+                document.getElementById(
+                    "registerUsername"
+                ).value.trim();
 
 
             const email =
-                document
-                    .getElementById(
-                        "registerEmail"
-                    )
-                    .value
-                    .trim();
+                document.getElementById(
+                    "registerEmail"
+                ).value.trim();
 
 
             const password =
-                document
-                    .getElementById(
-                        "registerPassword"
-                    )
-                    .value;
+                document.getElementById(
+                    "registerPassword"
+                ).value.trim();
 
 
             const confirmPassword =
-                document
-                    .getElementById(
-                        "confirmPassword"
-                    )
-                    .value;
+                document.getElementById(
+                    "confirmPassword"
+                ).value.trim();
+
+
+            const roleElement =
+                document.getElementById(
+                    "registerRole"
+                );
+
+
+            const role =
+                roleElement
+                    ? roleElement.value
+                    : "";
 
 
             const button =
@@ -629,6 +968,20 @@ if (registerForm) {
                 );
 
                 return;
+
+            }
+
+
+            if (!role) {
+
+                showMessage(
+                    "registerMessage",
+                    "Please select your role.",
+                    "error"
+                );
+
+                return;
+
             }
 
 
@@ -641,6 +994,7 @@ if (registerForm) {
                 );
 
                 return;
+
             }
 
 
@@ -656,38 +1010,34 @@ if (registerForm) {
                 );
 
                 return;
+
             }
 
 
-            button.disabled = true;
+            if (button) {
 
-            button.textContent =
-                "Creating Account...";
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "Creating Account...";
+
+            }
 
 
             try {
 
                 // ==================================
-                // FIREBASE AUTH
+                // FIREBASE
                 // ==================================
 
-                const auth =
+                const firebaseAuth =
                     checkFirebaseAuth();
-
-                const {
-                    createUserWithEmailAndPassword
-                } =
-                    await getFirebaseAuthFunctions();
-
-
-                console.log(
-                    "Creating Firebase user..."
-                );
 
 
                 const firebaseResult =
                     await createUserWithEmailAndPassword(
-                        auth,
+                        firebaseAuth,
                         email,
                         password
                     );
@@ -698,72 +1048,62 @@ if (registerForm) {
 
 
                 console.log(
-                    "Firebase Registration Successful:",
-                    firebaseUser.email
+                    "Firebase registration successful."
                 );
 
 
                 // ==================================
-                // FIREBASE ID TOKEN
+                // FIREBASE TOKEN
                 // ==================================
 
                 const firebaseToken =
-                    await firebaseUser.getIdToken();
-
-
-                console.log(
-                    "Firebase ID Token received."
-                );
+                    await firebaseUser.getIdToken(
+                        true
+                    );
 
 
                 // ==================================
-                // SAVE FIREBASE DATA
+                // BACKEND REGISTER
                 // ==================================
 
-                localStorage.setItem(
-                    "firebaseToken",
-                    firebaseToken
-                );
-
-
-                localStorage.setItem(
-                    "userEmail",
-                    firebaseUser.email
-                );
-
-
-                // ==================================
-                // REGISTER USER IN SPRING BOOT
-                // ==================================
-
-                console.log(
-                    "Creating backend user..."
-                );
+                const normalizedRole =
+                    normalizeRole(
+                        role
+                    );
 
 
                 const response =
                     await fetch(
                         `${API_BASE_URL}/auth/register`,
                         {
-                            method: "POST",
+
+                            method:
+                                "POST",
 
                             headers: {
+
                                 "Content-Type":
                                     "application/json"
+
                             },
 
-                            body: JSON.stringify({
+                            body:
+                                JSON.stringify({
 
-                                username:
-                                    username,
+                                    username:
+                                        username,
 
-                                email:
-                                    email,
+                                    email:
+                                        email,
 
-                                password:
-                                    password
+                                    password:
+                                        password,
 
-                            })
+                                    role:
+                                        normalizedRole
+
+                                })
+
                         }
                     );
 
@@ -773,13 +1113,13 @@ if (registerForm) {
 
 
                 console.log(
-                    "Backend Register Status:",
+                    "Register Status:",
                     response.status
                 );
 
 
                 console.log(
-                    "Backend Register Response:",
+                    "Register Response:",
                     responseText
                 );
 
@@ -790,7 +1130,46 @@ if (registerForm) {
                         responseText ||
                         "Backend registration failed."
                     );
+
                 }
+
+
+                // ==================================
+                // FIREBASE SIGN OUT
+                // ==================================
+
+                await signOut(
+                    firebaseAuth
+                );
+
+
+                // ==================================
+                // CLEAR AUTH DATA
+                // ==================================
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                localStorage.removeItem(
+                    "firebaseToken"
+                );
+
+                localStorage.removeItem(
+                    "userEmail"
+                );
+
+                localStorage.removeItem(
+                    "role"
+                );
+
+                localStorage.removeItem(
+                    "userRole"
+                );
+
+                localStorage.removeItem(
+                    "userId"
+                );
 
 
                 // ==================================
@@ -804,45 +1183,13 @@ if (registerForm) {
                 );
 
 
-                button.textContent =
-                    "Account Created ✓";
+                if (button) {
 
+                    button.textContent =
+                        "Account Created ✓";
 
-                // ==================================
-                // FIREBASE SIGN OUT
-                // ==================================
+                }
 
-                const {
-                    signOut
-                } =
-                    await getFirebaseAuthFunctions();
-
-
-                await signOut(auth);
-
-
-                // ==================================
-                // CLEAR TEMP DATA
-                // ==================================
-
-                localStorage.removeItem(
-                    "firebaseToken"
-                );
-
-
-                localStorage.removeItem(
-                    "userEmail"
-                );
-
-
-                localStorage.removeItem(
-                    "role"
-                );
-
-
-                // ==================================
-                // REDIRECT
-                // ==================================
 
                 setTimeout(
                     function () {
@@ -858,7 +1205,7 @@ if (registerForm) {
             } catch (error) {
 
                 console.error(
-                    "Firebase Registration Error:",
+                    "Registration Error:",
                     error
                 );
 
@@ -866,10 +1213,6 @@ if (registerForm) {
                 let message =
                     "Unable to create account.";
 
-
-                // ==================================
-                // FIREBASE ERRORS
-                // ==================================
 
                 if (
                     error.code ===
@@ -917,6 +1260,7 @@ if (registerForm) {
 
                     message =
                         error.message;
+
                 }
 
 
@@ -927,12 +1271,19 @@ if (registerForm) {
                 );
 
 
-                button.disabled = false;
+                if (button) {
 
-                button.textContent =
-                    "Create Account";
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Create Account";
+
+                }
+
             }
 
         }
     );
+
 }

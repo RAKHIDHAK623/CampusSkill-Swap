@@ -12,7 +12,6 @@ import com.campusskillswap.backend.repository.SkillRepository;
 import com.campusskillswap.backend.repository.UserRepository;
 import com.campusskillswap.backend.request.ExchangeRequest;
 
-
 @Service
 public class ExchangeService {
 
@@ -30,53 +29,178 @@ public class ExchangeService {
         this.skillRepository = skillRepository;
     }
 
+    // ==========================================
+    // SEND EXCHANGE REQUEST
+    // ==========================================
+
     public Exchange sendRequest(
             ExchangeRequest request,
             String email) {
 
         User sender = userRepository
-                .findByEmail(email)
-                .orElseThrow();
+                .findByEmail(
+                        email.trim().toLowerCase()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Sender not found"
+                        )
+                );
 
         User receiver = userRepository
-                .findById(request.getReceiverId())
-                .orElseThrow();
+                .findById(
+                        request.getReceiverId()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Receiver not found"
+                        )
+                );
 
         Skill skill = skillRepository
-                .findById(request.getSkillId())
-                .orElseThrow();
+                .findById(
+                        request.getSkillId()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Skill not found"
+                        )
+                );
 
         Exchange exchange = new Exchange();
 
         exchange.setSender(sender);
         exchange.setReceiver(receiver);
         exchange.setSkill(skill);
+        exchange.setStatus("PENDING");
 
-        return exchangeRepository.save(exchange);
+        Exchange savedExchange =
+                exchangeRepository.save(exchange);
+
+        System.out.println(
+                "================================="
+        );
+
+        System.out.println(
+                "EXCHANGE CREATED"
+        );
+
+        System.out.println(
+                "Exchange ID: " +
+                        savedExchange.getId()
+        );
+
+        System.out.println(
+                "Sender: " +
+                        sender.getEmail()
+        );
+
+        System.out.println(
+                "Receiver: " +
+                        receiver.getEmail()
+        );
+
+        System.out.println(
+                "Skill: " +
+                        skill.getName()
+        );
+
+        System.out.println(
+                "Status: " +
+                        savedExchange.getStatus()
+        );
+
+        System.out.println(
+                "================================="
+        );
+
+        return savedExchange;
     }
 
-    public List<Exchange> getRequests(String email) {
+    // ==========================================
+    // GET MY EXCHANGE REQUESTS
+    // ==========================================
+
+    public List<Exchange> getRequests(
+            String email) {
 
         User receiver = userRepository
-                .findByEmail(email)
-                .orElseThrow();
+                .findByEmail(
+                        email.trim().toLowerCase()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-        return exchangeRepository.findByReceiver(receiver);
+        return exchangeRepository
+                .findByReceiver(receiver);
     }
 
-    public Exchange acceptRequest(Long exchangeId, String email) {
+    // ==========================================
+    // GET ALL EXCHANGES - ADMIN
+    // ==========================================
+
+    public List<Exchange> getAllExchanges() {
+
+        System.out.println(
+                "================================="
+        );
+
+        System.out.println(
+                "ADMIN: GETTING ALL EXCHANGES"
+        );
+
+        List<Exchange> exchanges =
+                exchangeRepository.findAll();
+
+        System.out.println(
+                "TOTAL EXCHANGES: " +
+                        exchanges.size()
+        );
+
+        System.out.println(
+                "================================="
+        );
+
+        return exchanges;
+    }
+
+    // ==========================================
+    // ACCEPT REQUEST
+    // ==========================================
+
+    public Exchange acceptRequest(
+            Long exchangeId,
+            String email) {
 
         User receiver = userRepository
-                .findByEmail(email)
-                .orElseThrow();
+                .findByEmail(
+                        email.trim().toLowerCase()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-        Exchange exchange = exchangeRepository
-                .findById(exchangeId)
-                .orElseThrow();
+        Exchange exchange =
+                exchangeRepository
+                        .findById(exchangeId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Exchange not found"
+                                )
+                        );
 
-        if (!exchange.getReceiver().getId().equals(receiver.getId())) {
+        if (!exchange.getReceiver()
+                .getId()
+                .equals(receiver.getId())) {
+
             throw new RuntimeException(
-                    "You are not allowed to accept this request");
+                    "You are not allowed to accept this request"
+            );
         }
 
         exchange.setStatus("ACCEPTED");
@@ -84,19 +208,40 @@ public class ExchangeService {
         return exchangeRepository.save(exchange);
     }
 
-    public Exchange rejectRequest(Long exchangeId, String email) {
+    // ==========================================
+    // REJECT REQUEST
+    // ==========================================
+
+    public Exchange rejectRequest(
+            Long exchangeId,
+            String email) {
 
         User receiver = userRepository
-                .findByEmail(email)
-                .orElseThrow();
+                .findByEmail(
+                        email.trim().toLowerCase()
+                )
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        )
+                );
 
-        Exchange exchange = exchangeRepository
-                .findById(exchangeId)
-                .orElseThrow();
+        Exchange exchange =
+                exchangeRepository
+                        .findById(exchangeId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Exchange not found"
+                                )
+                        );
 
-        if (!exchange.getReceiver().getId().equals(receiver.getId())) {
+        if (!exchange.getReceiver()
+                .getId()
+                .equals(receiver.getId())) {
+
             throw new RuntimeException(
-                    "You are not allowed to reject this request");
+                    "You are not allowed to reject this request"
+            );
         }
 
         exchange.setStatus("REJECTED");

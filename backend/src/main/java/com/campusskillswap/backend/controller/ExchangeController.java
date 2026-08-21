@@ -24,71 +24,102 @@ public class ExchangeController {
 
     private final ExchangeService exchangeService;
 
-    public ExchangeController(ExchangeService exchangeService) {
+    public ExchangeController(
+            ExchangeService exchangeService) {
+
         this.exchangeService = exchangeService;
     }
 
-    // ==============================
+    // ==========================================
     // SEND EXCHANGE REQUEST
-    // ==============================
+    // ==========================================
 
     @PostMapping
     public ResponseEntity<Exchange> sendRequest(
             @RequestBody ExchangeRequest request,
             Authentication authentication) {
 
-        String email = authentication.getName();
+        String email =
+                authentication.getName();
 
-        Exchange exchange =
-                exchangeService.sendRequest(request, email);
-
-        return ResponseEntity.ok(exchange);
+        return ResponseEntity.ok(
+                exchangeService.sendRequest(
+                        request,
+                        email
+                )
+        );
     }
 
-    // ==============================
+    // ==========================================
     // GET MY EXCHANGE REQUESTS
-    // ==============================
+    // ==========================================
 
     @GetMapping
     public ResponseEntity<List<Exchange>> getRequests(
             Authentication authentication) {
 
-        String email = authentication.getName();
+        String email =
+                authentication.getName();
 
         return ResponseEntity.ok(
                 exchangeService.getRequests(email)
         );
     }
 
-    // ==============================
+    // ==========================================
+    // GET ALL EXCHANGES - ADMIN
+    // ==========================================
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Exchange>> getAllExchanges(
+            Authentication authentication) {
+
+        System.out.println(
+                "ADMIN GET ALL EXCHANGES"
+        );
+
+        return ResponseEntity.ok(
+                exchangeService.getAllExchanges()
+        );
+    }
+
+    // ==========================================
     // ACCEPT REQUEST
-    // ==============================
+    // ==========================================
 
     @PutMapping("/{id}/accept")
     public ResponseEntity<Exchange> acceptRequest(
             @PathVariable Long id,
             Authentication authentication) {
 
-        String email = authentication.getName();
+        String email =
+                authentication.getName();
 
         return ResponseEntity.ok(
-                exchangeService.acceptRequest(id, email)
+                exchangeService.acceptRequest(
+                        id,
+                        email
+                )
         );
     }
 
-    // ==============================
+    // ==========================================
     // REJECT REQUEST
-    // ==============================
+    // ==========================================
 
     @PutMapping("/{id}/reject")
     public ResponseEntity<Exchange> rejectRequest(
             @PathVariable Long id,
             Authentication authentication) {
 
-        String email = authentication.getName();
+        String email =
+                authentication.getName();
 
         return ResponseEntity.ok(
-                exchangeService.rejectRequest(id, email)
+                exchangeService.rejectRequest(
+                        id,
+                        email
+                )
         );
     }
 }
