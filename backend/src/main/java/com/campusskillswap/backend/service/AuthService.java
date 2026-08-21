@@ -28,15 +28,11 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    // ==========================================
     // REGISTER
-    // ==========================================
 
     public User register(RegisterRequest request) {
 
-        // ======================================
         // VALIDATION
-        // ======================================
 
         if (request.getEmail() == null ||
                 request.getEmail().isBlank()) {
@@ -56,26 +52,20 @@ public class AuthService {
             throw new RuntimeException("Password is required");
         }
 
-        // ======================================
         // NORMALIZE EMAIL
-        // ======================================
 
         String email = request.getEmail()
                 .trim()
                 .toLowerCase();
 
-        // ======================================
         // CHECK EXISTING USER
-        // ======================================
 
         if (userRepository.findByEmail(email).isPresent()) {
 
             throw new RuntimeException("Email already exists");
         }
 
-        // ======================================
         // CREATE USER
-        // ======================================
 
         User user = new User();
 
@@ -91,9 +81,8 @@ public class AuthService {
                 )
         );
 
-        // ======================================
         // ROLE
-        // ======================================
+        
 
         String role = request.getRole();
 
@@ -106,9 +95,7 @@ public class AuthService {
             role = role.trim().toUpperCase();
         }
 
-        // ======================================
         // ALLOWED ROLES
-        // ======================================
 
         if (!role.equals("ADMIN") &&
                 !role.equals("STUDENT")) {
@@ -118,25 +105,19 @@ public class AuthService {
 
         user.setRole(role);
 
-        // ======================================
         // DEBUG
-        // ======================================
 
         System.out.println("=================================");
         System.out.println("REGISTER USER: " + user.getEmail());
         System.out.println("REGISTER ROLE: " + user.getRole());
         System.out.println("=================================");
 
-        // ======================================
         // SAVE USER
-        // ======================================
 
         return userRepository.save(user);
     }
 
-    // ==========================================
     // LOGIN
-    // ==========================================
 
     public LoginResponse login(LoginRequest request) {
 
@@ -144,9 +125,7 @@ public class AuthService {
         System.out.println("LOGIN REQUEST RECEIVED");
         System.out.println("EMAIL: " + request.getEmail());
 
-        // ======================================
         // VALIDATION
-        // ======================================
 
         if (request.getEmail() == null ||
                 request.getEmail().isBlank()) {
@@ -160,17 +139,13 @@ public class AuthService {
             throw new RuntimeException("Password is required");
         }
 
-        // ======================================
         // NORMALIZE EMAIL
-        // ======================================
 
         String email = request.getEmail()
                 .trim()
                 .toLowerCase();
 
-        // ======================================
         // FIND USER
-        // ======================================
 
         User user = userRepository
                 .findByEmail(email)
@@ -187,9 +162,7 @@ public class AuthService {
                 "USER FOUND: " + user.getEmail()
         );
 
-        // ======================================
         // PASSWORD CHECK
-        // ======================================
 
         boolean passwordMatch =
                 passwordEncoder.matches(
@@ -210,15 +183,11 @@ public class AuthService {
             );
         }
 
-        // ======================================
         // GET ROLE
-        // ======================================
 
         String role = user.getRole();
 
-        // ======================================
         // DEFAULT ROLE
-        // ======================================
 
         if (role == null || role.isBlank()) {
 
@@ -235,9 +204,7 @@ public class AuthService {
                     .toUpperCase();
         }
 
-        // ======================================
         // ROLE SECURITY
-        // ======================================
 
         if (!role.equals("ADMIN") &&
                 !role.equals("STUDENT")) {
@@ -249,9 +216,7 @@ public class AuthService {
                 "USER ROLE: " + role
         );
 
-        // ======================================
         // GET USER ID
-        // ======================================
 
         Long userId = user.getId();
 
@@ -259,9 +224,8 @@ public class AuthService {
                 "USER ID: " + userId
         );
 
-        // ======================================
+        
         // GENERATE JWT
-        // ======================================
 
         String token =
                 jwtService.generateToken(
@@ -271,9 +235,7 @@ public class AuthService {
 
         System.out.println("JWT GENERATED");
 
-        // ======================================
         // FINAL LOGIN DATA
-        // ======================================
 
         System.out.println(
                 "LOGIN SUCCESS"
@@ -293,9 +255,7 @@ public class AuthService {
 
         System.out.println("=================================");
 
-        // ======================================
         // RETURN LOGIN RESPONSE
-        // ======================================
 
         return new LoginResponse(
                 token,

@@ -23,9 +23,8 @@ public class JwtService {
         );
     }
 
-    // ==========================================
+    
     // GENERATE JWT
-    // ==========================================
 
     public String generateToken(
             String email,
@@ -53,9 +52,7 @@ public class JwtService {
                 .compact();
     }
 
-    // ==========================================
     // EXTRACT EMAIL
-    // ==========================================
 
     public String extractEmail(String token) {
 
@@ -72,9 +69,9 @@ public class JwtService {
                 .getSubject();
     }
 
-    // ==========================================
+    
     // EXTRACT ROLE
-    // ==========================================
+    
 
     public String extractRole(String token) {
 

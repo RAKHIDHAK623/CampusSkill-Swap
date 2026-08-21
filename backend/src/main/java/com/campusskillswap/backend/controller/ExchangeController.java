@@ -30,9 +30,8 @@ public class ExchangeController {
         this.exchangeService = exchangeService;
     }
 
-    // ==========================================
+    
     // SEND EXCHANGE REQUEST
-    // ==========================================
 
     @PostMapping
     public ResponseEntity<Exchange> sendRequest(
@@ -50,9 +49,7 @@ public class ExchangeController {
         );
     }
 
-    // ==========================================
     // GET MY EXCHANGE REQUESTS
-    // ==========================================
 
     @GetMapping
     public ResponseEntity<List<Exchange>> getRequests(
@@ -66,9 +63,7 @@ public class ExchangeController {
         );
     }
 
-    // ==========================================
     // GET ALL EXCHANGES - ADMIN
-    // ==========================================
 
     @GetMapping("/all")
     public ResponseEntity<List<Exchange>> getAllExchanges(
@@ -83,9 +78,7 @@ public class ExchangeController {
         );
     }
 
-    // ==========================================
     // ACCEPT REQUEST
-    // ==========================================
 
     @PutMapping("/{id}/accept")
     public ResponseEntity<Exchange> acceptRequest(
@@ -103,9 +96,7 @@ public class ExchangeController {
         );
     }
 
-    // ==========================================
     // REJECT REQUEST
-    // ==========================================
 
     @PutMapping("/{id}/reject")
     public ResponseEntity<Exchange> rejectRequest(

@@ -25,9 +25,7 @@ public class SecurityConfig {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
-    // ==========================================
     // PASSWORD ENCODER
-    // ==========================================
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,9 +33,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ==========================================
     // CORS
-    // ==========================================
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -83,9 +79,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // ==========================================
     // SECURITY
-    // ==========================================
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -93,21 +87,16 @@ public class SecurityConfig {
 
         http
 
-            // ----------------------------------
             // CSRF
-            // ----------------------------------
 
             .csrf(csrf -> csrf.disable())
 
-            // ----------------------------------
             // CORS
-            // ----------------------------------
 
             .cors(cors -> {})
 
-            // ----------------------------------
             // SESSION
-            // ----------------------------------
+            
 
             .sessionManagement(session ->
                 session.sessionCreationPolicy(
@@ -115,9 +104,8 @@ public class SecurityConfig {
                 )
             )
 
-            // ----------------------------------
             // AUTHORIZATION
-            // ----------------------------------
+            
 
             .authorizeHttpRequests(auth -> auth
 
@@ -151,9 +139,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
 
-            // ----------------------------------
             // JWT
-            // ----------------------------------
 
             .addFilterBefore(
                 jwtAuthFilter,

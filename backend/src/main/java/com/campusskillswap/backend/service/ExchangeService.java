@@ -29,9 +29,7 @@ public class ExchangeService {
         this.skillRepository = skillRepository;
     }
 
-    // ==========================================
     // SEND EXCHANGE REQUEST
-    // ==========================================
 
     public Exchange sendRequest(
             ExchangeRequest request,
@@ -117,9 +115,7 @@ public class ExchangeService {
         return savedExchange;
     }
 
-    // ==========================================
     // GET MY EXCHANGE REQUESTS
-    // ==========================================
 
     public List<Exchange> getRequests(
             String email) {
@@ -138,9 +134,7 @@ public class ExchangeService {
                 .findByReceiver(receiver);
     }
 
-    // ==========================================
     // GET ALL EXCHANGES - ADMIN
-    // ==========================================
 
     public List<Exchange> getAllExchanges() {
 
@@ -167,9 +161,7 @@ public class ExchangeService {
         return exchanges;
     }
 
-    // ==========================================
     // ACCEPT REQUEST
-    // ==========================================
 
     public Exchange acceptRequest(
             Long exchangeId,
@@ -208,9 +200,7 @@ public class ExchangeService {
         return exchangeRepository.save(exchange);
     }
 
-    // ==========================================
     // REJECT REQUEST
-    // ==========================================
 
     public Exchange rejectRequest(
             Long exchangeId,

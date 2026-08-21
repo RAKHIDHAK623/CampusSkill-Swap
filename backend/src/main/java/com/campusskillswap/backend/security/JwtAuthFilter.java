@@ -53,9 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String email = null;
 
-        // ==========================================
         // CHECK JWT
-        // ==========================================
 
         if (authHeader != null
                 && authHeader.startsWith("Bearer ")) {
@@ -88,9 +86,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // ==========================================
         // AUTHENTICATE USER
-        // ==========================================
 
         if (email != null
                 && SecurityContextHolder
@@ -140,9 +136,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // ==========================================
         // SECURITY CONTEXT
-        // ==========================================
 
         System.out.println(
                 "SECURITY CONTEXT AUTH: "
