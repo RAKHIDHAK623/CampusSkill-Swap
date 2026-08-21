@@ -1,9 +1,7 @@
-// ==========================================
 // CAMPUS SKILLSWAP - AUTH.JS
 // Firebase Authentication
 // Spring Boot Authentication
 // JWT + Role Based Authentication
-// ==========================================
 
 import { auth } from "./firebase-config.js";
 
@@ -14,16 +12,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 
-// ==========================================
 // API
-// ==========================================
 
 const API_BASE_URL = "http://localhost:8081/api";
 
 
-// ==========================================
 // MESSAGE
-// ==========================================
 
 function showMessage(elementId, message, type) {
 
@@ -39,9 +33,7 @@ function showMessage(elementId, message, type) {
 }
 
 
-// ==========================================
 // PASSWORD TOGGLE
-// ==========================================
 
 function togglePassword(inputId, button) {
 
@@ -68,9 +60,7 @@ function togglePassword(inputId, button) {
 window.togglePassword = togglePassword;
 
 
-// ==========================================
 // CHECK FIREBASE
-// ==========================================
 
 function checkFirebaseAuth() {
 
@@ -86,9 +76,7 @@ function checkFirebaseAuth() {
 }
 
 
-// ==========================================
 // NORMALIZE ROLE
-// ==========================================
 
 function normalizeRole(role) {
 
@@ -102,9 +90,7 @@ function normalizeRole(role) {
 }
 
 
-// ==========================================
 // SAVE LOGIN DATA
-// ==========================================
 
 function saveAuthData(
     token,
@@ -118,9 +104,7 @@ function saveAuthData(
         normalizeRole(role);
 
 
-    // ======================================
     // JWT TOKEN
-    // ======================================
 
     localStorage.setItem(
         "token",
@@ -128,9 +112,7 @@ function saveAuthData(
     );
 
 
-    // ======================================
     // FIREBASE TOKEN
-    // ======================================
 
     localStorage.setItem(
         "firebaseToken",
@@ -138,9 +120,7 @@ function saveAuthData(
     );
 
 
-    // ======================================
     // EMAIL
-    // ======================================
 
     localStorage.setItem(
         "userEmail",
@@ -148,9 +128,7 @@ function saveAuthData(
     );
 
 
-    // ======================================
     // ROLE
-    // ======================================
 
     localStorage.setItem(
         "role",
@@ -164,9 +142,8 @@ function saveAuthData(
     );
 
 
-    // ======================================
+    
     // USER ID
-    // ======================================
 
     if (
         userId !== null &&
@@ -182,9 +159,7 @@ function saveAuthData(
     }
 
 
-    // ======================================
     // DEBUG
-    // ======================================
 
     console.log(
         "================================="
@@ -225,9 +200,7 @@ function saveAuthData(
 }
 
 
-// ==========================================
 // LOGIN FORM
-// ==========================================
 
 const loginForm =
     document.getElementById("loginForm");
@@ -278,9 +251,7 @@ if (loginForm) {
                 passwordInput.value;
 
 
-            // ==================================
             // VALIDATION
-            // ==================================
 
             if (!email || !password) {
 
@@ -307,9 +278,7 @@ if (loginForm) {
 
             try {
 
-                // ==================================
                 // FIREBASE LOGIN
-                // ==================================
 
                 const firebaseAuth =
                     checkFirebaseAuth();
@@ -338,9 +307,7 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // FIREBASE TOKEN
-                // ==================================
 
                 const firebaseToken =
                     await firebaseUser.getIdToken(
@@ -353,9 +320,8 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // BACKEND LOGIN
-                // ==================================
+                
 
                 console.log(
                     "Backend login started..."
@@ -408,9 +374,7 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // RESPONSE CHECK
-                // ==================================
 
                 if (!response.ok) {
 
@@ -422,9 +386,7 @@ if (loginForm) {
                 }
 
 
-                // ==================================
                 // PARSE RESPONSE
-                // ==================================
 
                 let data;
 
@@ -450,9 +412,7 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // GET BACKEND TOKEN
-                // ==================================
 
                 let backendToken = null;
 
@@ -474,9 +434,7 @@ if (loginForm) {
                 }
 
 
-                // ==================================
                 // TOKEN VALIDATION
-                // ==================================
 
                 if (!backendToken) {
 
@@ -493,9 +451,7 @@ if (loginForm) {
                     ).trim();
 
 
-                // ==================================
                 // GET ROLE
-                // ==================================
 
                 let role = null;
 
@@ -531,9 +487,7 @@ if (loginForm) {
                     );
 
 
-                // ==================================
                 // GET USER ID
-                // ==================================
 
                 let userId = null;
 
@@ -558,9 +512,7 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // USER ID VALIDATION
-                // ==================================
 
                 if (
                     userId === null ||
@@ -580,9 +532,7 @@ if (loginForm) {
                 }
 
 
-                // ==================================
                 // SAVE AUTH DATA
-                // ==================================
 
                 saveAuthData(
                     backendToken,
@@ -593,9 +543,7 @@ if (loginForm) {
                 );
 
 
-                // ==================================
                 // SUCCESS MESSAGE
-                // ==================================
 
                 showMessage(
                     "loginMessage",
@@ -612,9 +560,7 @@ if (loginForm) {
                 }
 
 
-                // ==================================
                 // FINAL LOGIN CHECK
-                // ==================================
 
                 setTimeout(
                     function () {
@@ -677,9 +623,7 @@ if (loginForm) {
                         );
 
 
-                        // ==================================
                         // TOKEN CHECK
-                        // ==================================
 
                         if (!savedToken) {
 
@@ -711,9 +655,7 @@ if (loginForm) {
                         }
 
 
-                        // ==================================
                         // USER ID CHECK
-                        // ==================================
 
                         if (!savedUserId) {
 
@@ -745,9 +687,7 @@ if (loginForm) {
                         }
 
 
-                        // ==================================
                         // ADMIN REDIRECT
-                        // ==================================
 
                         if (
                             savedRole ===
@@ -766,9 +706,8 @@ if (loginForm) {
 
                         }
 
-                        // ==================================
+                        
                         // STUDENT REDIRECT
-                        // ==================================
 
                         else {
 
@@ -800,9 +739,7 @@ if (loginForm) {
                     "Unable to login.";
 
 
-                // ==================================
                 // FIREBASE ERRORS
-                // ==================================
 
                 if (
                     error.code ===
@@ -889,9 +826,7 @@ if (loginForm) {
 }
 
 
-// ==========================================
 // REGISTER
-// ==========================================
 
 const registerForm =
     document.getElementById(

@@ -4015,9 +4015,8 @@ function updateNotificationCountText() {
 
 
 
-// ============================================================
-// TOGGLE NOTIFICATION DROPDOWN
-// ============================================================
+
+// TOGGLE NOTIFICATION DROPDOW
 
 function toggleNotificationPanel() {
 
@@ -4049,9 +4048,8 @@ function toggleNotificationPanel() {
     );
 
 
-    // ------------------------------------------
+    
     // LOAD AGAIN WHEN OPENED
-    // ------------------------------------------
 
     if (
         dropdown.classList.contains(
@@ -4067,9 +4065,8 @@ function toggleNotificationPanel() {
 
 
 
-// ============================================================
 // MARK ALL NOTIFICATIONS READ
-// ============================================================
+
 
 function markAllNotificationsRead() {
 
@@ -4096,9 +4093,7 @@ function markAllNotificationsRead() {
 
 
 
-// ============================================================
 // NOTIFICATION TIME
-// ============================================================
 
 function getNotificationTime(
     dateValue
@@ -4219,9 +4214,8 @@ function getNotificationTime(
 
 
 
-// ============================================================
 // CLOSE NOTIFICATION WHEN CLICKING OUTSIDE
-// ============================================================
+
 
 document.addEventListener(
     "click",
@@ -4272,9 +4266,9 @@ document.addEventListener(
 
 
 
-// ============================================================
+
 // GLOBAL FUNCTIONS
-// ============================================================
+
 
 window.loadNotifications =
     loadNotifications;

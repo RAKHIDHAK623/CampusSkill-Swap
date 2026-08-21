@@ -1,16 +1,9 @@
-// ==========================================
 // CAMPUS SKILLSWAP - ADMIN DASHBOARD JS
-// ==========================================
-
-// ==========================================
 // API CONFIGURATION
-// ==========================================
 
 const API_BASE_URL = "http://localhost:8081";
 
-// ==========================================
 // AUTH DATA
-// ==========================================
 
 function getToken() {
     return localStorage.getItem("token");
@@ -30,9 +23,7 @@ function getRole() {
         : null;
 }
 
-// ==========================================
 // INITIAL AUTH CHECK
-// ==========================================
 
 console.log("=================================");
 console.log("CAMPUS SKILLSWAP ADMIN DASHBOARD");
@@ -45,9 +36,7 @@ console.log(
 );
 console.log("=================================");
 
-// ==========================================
 // SECURITY CHECK
-// ==========================================
 
 if (!getToken()) {
 
@@ -71,9 +60,7 @@ if (!getToken()) {
     );
 }
 
-// ==========================================
 // DOM READY
-// ==========================================
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -102,9 +89,7 @@ document.addEventListener(
     }
 );
 
-// ==========================================
 // MOBILE MENU
-// ==========================================
 
 function setupAdminMenu() {
 
@@ -132,9 +117,7 @@ function setupAdminMenu() {
     );
 }
 
-// ==========================================
 // NAVIGATION
-// ==========================================
 
 function setupAdminNavigation() {
 
@@ -176,9 +159,8 @@ function setupAdminNavigation() {
     );
 }
 
-// ==========================================
+
 // BUTTONS
-// ==========================================
 
 function setupButtons() {
 
@@ -207,9 +189,8 @@ function setupButtons() {
             "logoutButton"
         );
 
-    // ======================================
+    
     // STUDENTS
-    // ======================================
 
     if (studentsButton) {
 
@@ -224,9 +205,7 @@ function setupButtons() {
         );
     }
 
-    // ======================================
     // SKILLS
-    // ======================================
 
     if (skillsButton) {
 
@@ -241,10 +220,8 @@ function setupButtons() {
         );
     }
 
-    // ======================================
     // EXCHANGES
-    // ======================================
-
+    
     if (exchangesButton) {
 
         exchangesButton.addEventListener(
@@ -258,10 +235,8 @@ function setupButtons() {
         );
     }
 
-    // ======================================
+    
     // REFRESH
-    // ======================================
-
     if (refreshButton) {
 
         refreshButton.addEventListener(
@@ -273,9 +248,9 @@ function setupButtons() {
         );
     }
 
-    // ======================================
+    
     // LOGOUT
-    // ======================================
+    
 
     if (logoutButton) {
 
@@ -289,9 +264,9 @@ function setupButtons() {
     }
 }
 
-// ==========================================
+
 // ACTIVE NAVIGATION
-// ==========================================
+
 
 function setActiveNav(section) {
 
@@ -314,9 +289,8 @@ function setActiveNav(section) {
     );
 }
 
-// ==========================================
+
 // ADMIN PROFILE
-// ==========================================
 
 function displayAdminProfile() {
 
@@ -361,9 +335,9 @@ function displayAdminProfile() {
     }
 }
 
-// ==========================================
+
 // AUTH HEADERS
-// ==========================================
+
 
 function getAuthHeaders() {
 
@@ -379,9 +353,8 @@ function getAuthHeaders() {
     };
 }
 
-// ==========================================
+
 // HANDLE AUTH ERROR
-// ==========================================
 
 async function handleAuthError(
     response,
@@ -456,9 +429,9 @@ async function handleAuthError(
     return true;
 }
 
-// ==========================================
+
 // ADMIN STATS
-// ==========================================
+
 
 async function loadAdminStats() {
 
@@ -479,9 +452,8 @@ async function loadAdminStats() {
     );
 }
 
-// ==========================================
+
 // USER COUNT
-// ==========================================
 
 async function loadUserCount() {
 
@@ -577,9 +549,8 @@ async function loadUserCount() {
     }
 }
 
-// ==========================================
+
 // SKILL COUNT
-// ==========================================
 
 async function loadSkillCount() {
 
@@ -658,9 +629,8 @@ async function loadSkillCount() {
     }
 }
 
-// ==========================================
+
 // EXCHANGE COUNT
-// ==========================================
 
 async function loadExchangeCount() {
 
@@ -739,9 +709,8 @@ async function loadExchangeCount() {
     }
 }
 
-// ==========================================
+
 // PLATFORM RATING
-// ==========================================
 
 async function loadPlatformRating() {
 
@@ -850,9 +819,8 @@ async function loadPlatformRating() {
     }
 }
 
-// ==========================================
+
 // SET STAT
-// ==========================================
 
 function setStat(
     elementId,
@@ -871,9 +839,9 @@ function setStat(
     }
 }
 
-// ==========================================
+
 // LOAD STUDENTS
-// ==========================================
+
 
 async function loadStudents() {
 
@@ -1066,9 +1034,9 @@ async function loadStudents() {
     }
 }
 
-// ==========================================
+
 // LOAD SKILLS
-// ==========================================
+
 
 async function loadAdminSkills() {
 
@@ -1353,9 +1321,8 @@ async function loadAdminSkills() {
     }
 }
 
-// ==========================================
+
 // LOAD ALL EXCHANGES
-// ==========================================
 
 async function loadAdminExchanges() {
 
@@ -1461,10 +1428,9 @@ async function loadAdminExchanges() {
             return;
         }
 
-        // ==================================
+        
         // CALCULATE PLATFORM RATING
-        // ==================================
-
+        
         let totalRating = 0;
 
         let ratingCount = 0;
@@ -1504,10 +1470,9 @@ async function loadAdminExchanges() {
             averageRating
         );
 
-        // ==================================
+        
         // CREATE TABLE
-        // ==================================
-
+        
         let rows = "";
 
         exchanges.forEach(
@@ -1667,9 +1632,8 @@ async function loadAdminExchanges() {
     }
 }
 
-// ==========================================
+
 // STATUS CLASS
-// ==========================================
 
 function getStatusClass(status) {
 
@@ -1697,9 +1661,9 @@ function getStatusClass(status) {
     return "pending";
 }
 
-// ==========================================
+
 // REFRESH CURRENT DATA
-// ==========================================
+
 
 function refreshCurrentData() {
 
@@ -1745,9 +1709,9 @@ function refreshCurrentData() {
     }
 }
 
-// ==========================================
+
 // LOADING UI
-// ==========================================
+
 
 function showLoading(
     container,
@@ -1767,9 +1731,8 @@ function showLoading(
     `;
 }
 
-// ==========================================
+
 // EMPTY UI
-// ==========================================
 
 function showEmpty(
     container,
@@ -1797,9 +1760,8 @@ function showEmpty(
     `;
 }
 
-// ==========================================
+
 // ERROR UI
-// ==========================================
 
 function showError(
     container,
@@ -1828,9 +1790,9 @@ function showError(
     `;
 }
 
-// ==========================================
+
 // HTML ESCAPE
-// ==========================================
+
 
 function escapeHTML(value) {
 
@@ -1862,9 +1824,8 @@ function escapeHTML(value) {
         );
 }
 
-// ==========================================
+
 // LOGOUT
-// ==========================================
 
 function adminLogout() {
 
@@ -1897,9 +1858,8 @@ function adminLogout() {
     );
 }
 
-// ==========================================
+
 // REAL-TIME ADMIN REFRESH
-// ==========================================
 
 let adminRefreshInterval = null;
 
@@ -1941,10 +1901,9 @@ function startAdminRealtimeRefresh() {
                     "🔄 Admin dashboard refreshing..."
                 );
 
-                // ==================================
+                
                 // UPDATE STATISTICS
-                // ==================================
-
+                
                 await loadUserCount();
 
                 await loadSkillCount();
@@ -1953,10 +1912,9 @@ function startAdminRealtimeRefresh() {
 
                 await loadPlatformRating();
 
-                // ==================================
+                
                 // UPDATE OPEN SECTION
-                // ==================================
-
+                
                 const title =
                     document.getElementById(
                         "dataTitle"
@@ -1996,9 +1954,8 @@ function startAdminRealtimeRefresh() {
         );
 }
 
-// ==========================================
 // GLOBAL FUNCTIONS
-// ==========================================
+
 
 window.adminLogout =
     adminLogout;
